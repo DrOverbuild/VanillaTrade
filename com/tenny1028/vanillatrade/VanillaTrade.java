@@ -1,5 +1,6 @@
 package com.tenny1028.vanillatrade;
 
+import com.tenny1028.vanillatrade.commands.ShopCommand;
 import com.tenny1028.vanillatrade.events.PlayerAsyncChatEventHandler;
 import com.tenny1028.vanillatrade.events.PlayerInteractEventHandler;
 import org.bukkit.entity.Player;
@@ -18,6 +19,7 @@ public class VanillaTrade extends JavaPlugin{
 	@Override
 	public void onEnable() {
 		loadEvents();
+		loadCommands();
 	}
 
 	@Override
@@ -30,11 +32,19 @@ public class VanillaTrade extends JavaPlugin{
 		getServer().getPluginManager().registerEvents(new PlayerInteractEventHandler(this),this);
 	}
 
+	public void loadCommands(){
+		getCommand("shop").setExecutor(new ShopCommand(this));
+	}
+
 	public ShopSetupState getSetupState(Player p){
 		if(playerShopSetupState.containsKey(p)){
 			return playerShopSetupState.get(p);
 		}else{
 			return ShopSetupState.NONE;
 		}
+	}
+
+	public void setShopSetupState(Player p,ShopSetupState state){
+		playerShopSetupState.put(p,state);
 	}
 }
