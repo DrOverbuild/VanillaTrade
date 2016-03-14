@@ -1,0 +1,14 @@
+name: VanillaTrade
+version: 1.0
+main: com.tenny1028.vanillatrade.VanillaTrade
+
+commands:
+  shop:
+    description: Begin shop setup.
+    permission: vannillatrade.sell
+    usage: None
+
+permissions:
+  vanillatrade.sell:
+    default: true
+    description: Allows players to setup a shop.
