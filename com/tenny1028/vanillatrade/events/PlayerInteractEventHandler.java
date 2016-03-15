@@ -81,6 +81,7 @@ public class PlayerInteractEventHandler implements Listener{
 		Inventory chestInv = ((Chest)shop.getLocation().getBlock().getState()).getInventory();
 		Inventory inv = plugin.getServer().createInventory(p,chestInv.getSize(),ChatColor.BOLD + "Trade with " + shop.getOwner().getName());
 
+		int i = 0;
 		for(ItemStack item:chestInv.getContents()){
 			if(item!=null){
 				if(!item.getType().equals(shop.getCost().getType())){
@@ -90,9 +91,10 @@ public class PlayerInteractEventHandler implements Listener{
 					ItemMeta copyMeta = copy.getItemMeta();
 					copyMeta.setLore(Collections.singletonList(lore));
 					copy.setItemMeta(copyMeta);
-					inv.addItem(copy);
+					inv.setItem(i,copy);
 				}
 			}
+			i++;
 		}
 
 		p.openInventory(inv);
