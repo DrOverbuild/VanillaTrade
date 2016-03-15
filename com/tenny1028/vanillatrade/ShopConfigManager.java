@@ -28,7 +28,7 @@ public class ShopConfigManager {
 	}
 
 	public String getConfigFileName(Location location){
-		return location.getBlockX() + "," + location.getBlockX() + "," + location.getBlockZ() + ".yml";
+		return location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + ".yml";
 	}
 
 	public YamlConfiguration getConfigOfShop(Location location) throws IOException, InvalidConfigurationException {
