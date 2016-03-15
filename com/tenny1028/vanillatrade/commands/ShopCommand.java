@@ -22,7 +22,13 @@ public class ShopCommand implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
 
 		if(sender instanceof Player){
-			sender.sendMessage(ChatColor.GOLD + "Right click a chest to begin shop setup.");
+			sender.sendMessage("");
+			sender.sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
+			sender.sendMessage(ChatColor.GRAY + "You are now entering shop setup mode.");
+			sender.sendMessage(ChatColor.GRAY + "Type " + ChatColor.GOLD + "CANCEL" + ChatColor.GRAY + " at any time to stop.");
+			sender.sendMessage(ChatColor.GRAY + "Right click a chest to begin shop setup.");
+			sender.sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
+			sender.sendMessage("");
 			plugin.setShopSetupState((Player)sender, ShopSetupState.CHOOSE_CHEST);
 		}
 

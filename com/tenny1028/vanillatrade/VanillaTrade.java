@@ -1,6 +1,7 @@
 package com.tenny1028.vanillatrade;
 
 import com.tenny1028.vanillatrade.commands.ShopCommand;
+import com.tenny1028.vanillatrade.events.ExtraEventsHandler;
 import com.tenny1028.vanillatrade.events.PlayerAsyncChatEventHandler;
 import com.tenny1028.vanillatrade.events.PlayerInteractEventHandler;
 import org.bukkit.entity.Player;
@@ -14,12 +15,21 @@ import java.util.Map;
  */
 public class VanillaTrade extends JavaPlugin{
 
+	public static VanillaTrade instance;
+
 	Map<Player, ShopSetupState> playerShopSetupState = new HashMap<>();
+	ShopConfigManager shopConfigManager;
 
 	@Override
 	public void onEnable() {
+		instance = this;
+
+		shopConfigManager = new ShopConfigManager(this);
+
 		loadEvents();
 		loadCommands();
+
+
 	}
 
 	@Override
@@ -30,6 +40,7 @@ public class VanillaTrade extends JavaPlugin{
 	public void loadEvents(){
 		getServer().getPluginManager().registerEvents(new PlayerAsyncChatEventHandler(this),this);
 		getServer().getPluginManager().registerEvents(new PlayerInteractEventHandler(this),this);
+		getServer().getPluginManager().registerEvents(new ExtraEventsHandler(this),this);
 	}
 
 	public void loadCommands(){
@@ -45,6 +56,14 @@ public class VanillaTrade extends JavaPlugin{
 	}
 
 	public void setShopSetupState(Player p,ShopSetupState state){
-		playerShopSetupState.put(p,state);
+		if(state.equals(ShopSetupState.NONE)){
+			playerShopSetupState.remove(p);
+		}else {
+			playerShopSetupState.put(p, state);
+		}
+	}
+
+	public ShopConfigManager getShopConfigManager() {
+		return shopConfigManager;
 	}
 }
