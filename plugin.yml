@@ -5,7 +5,7 @@ main: com.tenny1028.vanillatrade.VanillaTrade
 commands:
   shop:
     description: Begin shop setup.
-    permission: vannillatrade.sell
+    permission: vanillatrade.sell
     usage: None
 
 permissions:
