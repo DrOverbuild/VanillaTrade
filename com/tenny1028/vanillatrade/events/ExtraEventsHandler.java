@@ -1,13 +1,16 @@
 package com.tenny1028.vanillatrade.events;
 
 import com.tenny1028.vanillatrade.ShopChest;
-import com.tenny1028.vanillatrade.ShopSetupState;
+import com.tenny1028.vanillatrade.ShopState;
 import com.tenny1028.vanillatrade.VanillaTrade;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
@@ -40,7 +43,22 @@ public class ExtraEventsHandler implements Listener {
 	}
 
 	@EventHandler
+	public void onPlaceBlock(BlockPlaceEvent e){
+		BlockFace[] faces = new BlockFace[]{BlockFace.NORTH,BlockFace.EAST,BlockFace.SOUTH,BlockFace.WEST};
+		for(BlockFace face:faces){
+			Block relative = e.getBlock().getRelative(face);
+			if(relative!=null && relative.getType().equals(Material.CHEST)){
+				if(plugin.getShopConfigManager().getShopChest(relative.getLocation())!=null){
+					e.setCancelled(true);
+					e.getPlayer().sendMessage(ChatColor.RED + "Shops cannot be double chests.");
+					return;
+				}
+			}
+		}
+	}
+
+	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e){
-		plugin.setShopSetupState(e.getPlayer(), ShopSetupState.NONE);
+		plugin.setState(e.getPlayer(), ShopState.NONE);
 	}
 }

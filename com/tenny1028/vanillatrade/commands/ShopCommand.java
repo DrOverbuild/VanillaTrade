@@ -1,6 +1,6 @@
 package com.tenny1028.vanillatrade.commands;
 
-import com.tenny1028.vanillatrade.ShopSetupState;
+import com.tenny1028.vanillatrade.ShopState;
 import com.tenny1028.vanillatrade.VanillaTrade;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -29,7 +29,7 @@ public class ShopCommand implements CommandExecutor {
 			sender.sendMessage(ChatColor.GRAY + "Right click a chest to begin shop setup.");
 			sender.sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
 			sender.sendMessage("");
-			plugin.setShopSetupState((Player)sender, ShopSetupState.CHOOSE_CHEST);
+			plugin.setState((Player)sender, ShopState.SETUP_CHOOSE_CHEST);
 		}
 
 		return true;

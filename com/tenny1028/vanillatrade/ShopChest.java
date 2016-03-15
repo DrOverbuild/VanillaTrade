@@ -3,6 +3,7 @@ package com.tenny1028.vanillatrade;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Chest;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -34,6 +35,10 @@ public class ShopChest {
 		this.owner = owner;
 		this.location = location;
 		this.cost = cost;
+	}
+
+	public Chest getChest(){
+		return (Chest)getLocation().getBlock().getState();
 	}
 
 	public OfflinePlayer getOwner() {

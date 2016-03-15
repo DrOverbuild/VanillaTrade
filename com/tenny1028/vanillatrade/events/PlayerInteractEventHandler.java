@@ -1,11 +1,10 @@
 package com.tenny1028.vanillatrade.events;
 
 import com.tenny1028.vanillatrade.ShopChest;
-import com.tenny1028.vanillatrade.ShopSetupState;
+import com.tenny1028.vanillatrade.ShopState;
 import com.tenny1028.vanillatrade.VanillaTrade;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,7 +28,6 @@ public class PlayerInteractEventHandler implements Listener{
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent e){
-
 		if(!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
 			return;
 		}
@@ -44,19 +42,19 @@ public class PlayerInteractEventHandler implements Listener{
 
 		ShopChest shop = plugin.getShopConfigManager().getShopChest(e.getClickedBlock().getLocation());
 		if (shop == null) {
-			if(plugin.getSetupState(e.getPlayer()).equals(ShopSetupState.CHOOSE_CHEST)) {
+			if(plugin.getState(e.getPlayer()).equals(ShopState.SETUP_CHOOSE_CHEST)) {
 				e.setCancelled(true);
 				e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
 				e.getPlayer().sendMessage(ChatColor.GRAY + "Setting up a new Shop chest.");
 				e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment type.");
 				e.getPlayer().sendMessage(ChatColor.GRAY + "Examples: " + ChatColor.GOLD + "diamond" + ChatColor.GRAY + " or " + ChatColor.GOLD + "gold_nugget");
 				e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
-				ShopSetupState state = ShopSetupState.CHOOSE_PAYMENT_TYPE;
+				ShopState state = ShopState.SETUP_CHOOSE_PAYMENT_TYPE;
 				state.setCurrentShop(e.getClickedBlock().getLocation());
-				plugin.setShopSetupState(e.getPlayer(), state);
+				plugin.setState(e.getPlayer(), state);
 			}
 		}else{
-			if(plugin.getSetupState(e.getPlayer()).equals(ShopSetupState.CHOOSE_CHEST)) {
+			if(plugin.getState(e.getPlayer()).equals(ShopState.SETUP_CHOOSE_CHEST)) {
 				if (e.getPlayer().getName().equals(shop.getOwner().getName()) || e.getPlayer().hasPermission("vanillatrade.op")) {
 					e.setCancelled(true);
 					e.getPlayer().sendMessage(ChatColor.GOLD + "++++++++++++ SHOP SETUP ++++++++++++");
@@ -66,23 +64,28 @@ public class PlayerInteractEventHandler implements Listener{
 					e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment type.");
 					e.getPlayer().sendMessage(ChatColor.GRAY + "Examples: " + ChatColor.GOLD + "diamond" + ChatColor.GRAY + " or " + ChatColor.GOLD + "gold_nugget");
 					e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++++");
-					ShopSetupState state = ShopSetupState.CHOOSE_PAYMENT_TYPE;
+					ShopState state = ShopState.SETUP_CHOOSE_PAYMENT_TYPE;
 					state.setCurrentShop(e.getClickedBlock().getLocation());
-					plugin.setShopSetupState(e.getPlayer(), state);
+					plugin.setState(e.getPlayer(), state);
 				}
 			}else if(!e.getPlayer().getName().equals(shop.getOwner().getName())){
 				e.setCancelled(true);
+
+				if(e.getPlayer().isSneaking()){
+					return;
+				}
+
 				openInventory(shop,e.getPlayer());
 			}
 		}
 	}
 
 	public void openInventory(ShopChest shop, Player p){
-		Inventory chestInv = ((Chest)shop.getLocation().getBlock().getState()).getInventory();
+		Inventory chestInv = shop.getChest().getInventory();
 		Inventory inv = plugin.getServer().createInventory(p,chestInv.getSize(),ChatColor.BOLD + "Trade with " + shop.getOwner().getName());
 
-		int i = 0;
-		for(ItemStack item:chestInv.getContents()){
+		for(int i = 0; i<chestInv.getContents().length; i++){
+			ItemStack item = chestInv.getContents()[i];
 			if(item!=null){
 				if(!item.getType().equals(shop.getCost().getType())){
 					ItemStack copy = new ItemStack(item);
@@ -94,9 +97,11 @@ public class PlayerInteractEventHandler implements Listener{
 					inv.setItem(i,copy);
 				}
 			}
-			i++;
 		}
 
 		p.openInventory(inv);
+		ShopState state = ShopState.BROWSING_SHOP;
+		state.setCurrentShop(shop.getLocation());
+		plugin.setState(p,state);
 	}
 }

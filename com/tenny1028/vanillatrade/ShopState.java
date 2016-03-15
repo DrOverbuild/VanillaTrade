@@ -5,9 +5,9 @@ import org.bukkit.Location;
 /**
  * Created by jasper on 3/14/16.
  */
-public enum ShopSetupState {
+public enum ShopState {
 
-	NONE, CHOOSE_CHEST, CHOOSE_PAYMENT_TYPE, CHOOSE_PAYMENT_AMOUNT, TRADE_CONFIRMATION;
+	NONE, SETUP_CHOOSE_CHEST, SETUP_CHOOSE_PAYMENT_TYPE, SETUP_CHOOSE_PAYMENT_AMOUNT, BROWSING_SHOP, TRADE_CONFIRMATION;
 
 	Location currentShop = null;
 

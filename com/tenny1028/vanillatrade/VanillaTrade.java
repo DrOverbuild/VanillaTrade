@@ -4,6 +4,7 @@ import com.tenny1028.vanillatrade.commands.ShopCommand;
 import com.tenny1028.vanillatrade.events.ExtraEventsHandler;
 import com.tenny1028.vanillatrade.events.PlayerAsyncChatEventHandler;
 import com.tenny1028.vanillatrade.events.PlayerInteractEventHandler;
+import com.tenny1028.vanillatrade.events.PlayerInventoryInteractEventHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,7 +18,7 @@ public class VanillaTrade extends JavaPlugin{
 
 	public static VanillaTrade instance;
 
-	Map<Player, ShopSetupState> playerShopSetupState = new HashMap<>();
+	Map<Player, ShopState> playerState = new HashMap<>();
 	ShopConfigManager shopConfigManager;
 
 	@Override
@@ -34,12 +35,19 @@ public class VanillaTrade extends JavaPlugin{
 
 	@Override
 	public void onDisable() {
+		for(Player p : playerState.keySet()){
+			if(getState(p).equals(ShopState.BROWSING_SHOP)||getState(p).equals(ShopState.TRADE_CONFIRMATION)){
+				p.closeInventory();
+			}else if(!getState(p).equals(ShopState.NONE)){
 
+			}
+		}
 	}
 
 	public void loadEvents(){
 		getServer().getPluginManager().registerEvents(new PlayerAsyncChatEventHandler(this),this);
 		getServer().getPluginManager().registerEvents(new PlayerInteractEventHandler(this),this);
+		getServer().getPluginManager().registerEvents(new PlayerInventoryInteractEventHandler(this),this);
 		getServer().getPluginManager().registerEvents(new ExtraEventsHandler(this),this);
 	}
 
@@ -47,20 +55,22 @@ public class VanillaTrade extends JavaPlugin{
 		getCommand("shop").setExecutor(new ShopCommand(this));
 	}
 
-	public ShopSetupState getSetupState(Player p){
-		if(playerShopSetupState.containsKey(p)){
-			return playerShopSetupState.get(p);
+	public ShopState getState(Player p){
+		if(playerState.containsKey(p)){
+			return playerState.get(p);
 		}else{
-			return ShopSetupState.NONE;
+			return ShopState.NONE;
 		}
 	}
 
-	public void setShopSetupState(Player p,ShopSetupState state){
-		if(state.equals(ShopSetupState.NONE)){
-			playerShopSetupState.remove(p);
+	public void setState(Player p, ShopState state){
+		if(state.equals(ShopState.NONE)){
+			playerState.remove(p);
 		}else {
-			playerShopSetupState.put(p, state);
+			playerState.put(p, state);
 		}
+
+		getLogger().info("State of " + p.getName() + ": " + state.name());
 	}
 
 	public ShopConfigManager getShopConfigManager() {

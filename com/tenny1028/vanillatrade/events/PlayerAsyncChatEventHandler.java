@@ -1,7 +1,7 @@
 package com.tenny1028.vanillatrade.events;
 
 import com.tenny1028.vanillatrade.ShopChest;
-import com.tenny1028.vanillatrade.ShopSetupState;
+import com.tenny1028.vanillatrade.ShopState;
 import com.tenny1028.vanillatrade.VanillaTrade;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -22,13 +22,13 @@ public class PlayerAsyncChatEventHandler implements Listener {
 
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent e){
-		ShopSetupState state = plugin.getSetupState(e.getPlayer());
+		ShopState state = plugin.getState(e.getPlayer());
 
-		if(state.equals(ShopSetupState.NONE)){
+		if(state.equals(ShopState.NONE)){
 			return;
 		}
 
-		if(state.equals(ShopSetupState.TRADE_CONFIRMATION)){
+		if(state.equals(ShopState.TRADE_CONFIRMATION)){
 			if(e.getMessage().toLowerCase().startsWith("y")){
 				// TODO: Have player buy item from chest
 			}else{
@@ -37,7 +37,7 @@ public class PlayerAsyncChatEventHandler implements Listener {
 				e.getPlayer().sendMessage(ChatColor.GRAY + "Trade cancelled.");
 				e.getPlayer().sendMessage(ChatColor.GREEN + "++++++++++++++++++++++++++++");
 				e.getPlayer().sendMessage("");
-				plugin.setShopSetupState(e.getPlayer(),ShopSetupState.NONE);
+				plugin.setState(e.getPlayer(), ShopState.NONE);
 			}
 		}
 
@@ -50,11 +50,11 @@ public class PlayerAsyncChatEventHandler implements Listener {
 			e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
 			e.getPlayer().sendMessage("");
 
-			plugin.setShopSetupState(e.getPlayer(),ShopSetupState.NONE);
+			plugin.setState(e.getPlayer(), ShopState.NONE);
 			return;
 		}
 
-		if(state.equals(ShopSetupState.CHOOSE_PAYMENT_TYPE)){
+		if(state.equals(ShopState.SETUP_CHOOSE_PAYMENT_TYPE)){
 			e.setCancelled(true);
 
 			Material paymentType = null;
@@ -76,7 +76,7 @@ public class PlayerAsyncChatEventHandler implements Listener {
 			if(state.getCurrentShop()!=null) {
 				ShopChest shop = plugin.getShopConfigManager().getShopChest(state.getCurrentShop());
 				if(shop == null) {
-					shop = new ShopChest(e.getPlayer(),plugin.getSetupState(e.getPlayer()).getCurrentShop(), new ItemStack(paymentType));
+					shop = new ShopChest(e.getPlayer(),plugin.getState(e.getPlayer()).getCurrentShop(), new ItemStack(paymentType));
 				}
 				shop.setCost(new ItemStack(paymentType));
 				plugin.getShopConfigManager().saveShopChest(shop);
@@ -89,12 +89,12 @@ public class PlayerAsyncChatEventHandler implements Listener {
 				e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
 
 
-				state = ShopSetupState.CHOOSE_PAYMENT_AMOUNT;
+				state = ShopState.SETUP_CHOOSE_PAYMENT_AMOUNT;
 				state.setCurrentShop(shop.getLocation());
-				plugin.setShopSetupState(e.getPlayer(),state);
+				plugin.setState(e.getPlayer(),state);
 			}
 
-		}else if(state.equals(ShopSetupState.CHOOSE_PAYMENT_AMOUNT)){
+		}else if(state.equals(ShopState.SETUP_CHOOSE_PAYMENT_AMOUNT)){
 			e.setCancelled(true);
 			int paymentAmount = 1;
 
@@ -126,7 +126,7 @@ public class PlayerAsyncChatEventHandler implements Listener {
 			e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
 			e.getPlayer().sendMessage("");
 
-			plugin.setShopSetupState(e.getPlayer(),ShopSetupState.NONE);
+			plugin.setState(e.getPlayer(), ShopState.NONE);
 		}
 	}
 }
