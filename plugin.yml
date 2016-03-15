@@ -12,3 +12,6 @@ permissions:
   vanillatrade.sell:
     default: true
     description: Allows players to setup a shop.
+  vanillatrade.op:
+    default: op
+    description: Allows players to edit other shops.
