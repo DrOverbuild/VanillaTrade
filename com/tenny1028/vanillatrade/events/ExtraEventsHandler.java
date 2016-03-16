@@ -27,7 +27,7 @@ public class ExtraEventsHandler implements Listener {
 		if(e.getBlock().getType().equals(Material.CHEST)){
 			ShopChest shop = plugin.getShopConfigManager().getShopChest(e.getBlock().getLocation());
 			if(shop!=null){
-				if(e.getPlayer().getName().equals(shop.getOwner().getName())){
+				if(e.getPlayer().getName().equals(shop.getOwner().getName())||e.getPlayer().hasPermission("vanillatrade.op")){
 					if(!plugin.isDoubleChest(shop.getChest())) {
 						plugin.getShopConfigManager().removeShopChest(shop);
 						e.getPlayer().sendMessage("");
