@@ -28,19 +28,6 @@ public class PlayerAsyncChatEventHandler implements Listener {
 			return;
 		}
 
-		if(state.equals(ShopState.TRADE_CONFIRMATION)){
-			if(e.getMessage().toLowerCase().startsWith("y")){
-				// TODO: Have player buy item from chest
-			}else{
-				e.getPlayer().sendMessage("");
-				e.getPlayer().sendMessage(ChatColor.GREEN + "+++++++++++ TRADE +++++++++++");
-				e.getPlayer().sendMessage(ChatColor.GRAY + "Trade cancelled.");
-				e.getPlayer().sendMessage(ChatColor.GREEN + "++++++++++++++++++++++++++++");
-				e.getPlayer().sendMessage("");
-				plugin.setState(e.getPlayer(), ShopState.NONE);
-			}
-		}
-
 		if(e.getMessage().equalsIgnoreCase("cancel")){
 			e.setCancelled(true);
 
@@ -63,7 +50,7 @@ public class PlayerAsyncChatEventHandler implements Listener {
 				int id = Integer.parseInt(e.getMessage());
 				paymentType = Material.getMaterial(id);
 			}catch (NumberFormatException ex) {
-				paymentType = Material.matchMaterial(e.getMessage());
+				paymentType = Material.matchMaterial(e.getMessage().replace(" ","_"));
 			}
 
 			if(paymentType == null){
@@ -77,6 +64,9 @@ public class PlayerAsyncChatEventHandler implements Listener {
 				ShopChest shop = plugin.getShopConfigManager().getShopChest(state.getCurrentShop());
 				if(shop == null) {
 					shop = new ShopChest(e.getPlayer(),plugin.getState(e.getPlayer()).getCurrentShop(), new ItemStack(paymentType));
+					if(plugin.isDoubleChest(shop.getChest())){
+						plugin.getShopConfigManager().saveShopChest(new ShopChest(shop.getOwner(),plugin.getSisterChest(shop.getChest()).getLocation(),shop.getCost()));
+					}
 				}
 				shop.setCost(new ItemStack(paymentType));
 				plugin.getShopConfigManager().saveShopChest(shop);

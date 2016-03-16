@@ -5,6 +5,10 @@ import com.tenny1028.vanillatrade.events.ExtraEventsHandler;
 import com.tenny1028.vanillatrade.events.PlayerAsyncChatEventHandler;
 import com.tenny1028.vanillatrade.events.PlayerInteractEventHandler;
 import com.tenny1028.vanillatrade.events.PlayerInventoryInteractEventHandler;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -75,5 +79,20 @@ public class VanillaTrade extends JavaPlugin{
 
 	public ShopConfigManager getShopConfigManager() {
 		return shopConfigManager;
+	}
+
+	public Chest getSisterChest(Chest chest){
+		BlockFace[] faces = new BlockFace[]{BlockFace.NORTH,BlockFace.EAST,BlockFace.SOUTH,BlockFace.WEST};
+		for(BlockFace face:faces){
+			Block relative = chest.getBlock().getRelative(face);
+			if(relative!=null && relative.getType().equals(Material.CHEST)){
+				return (Chest)relative.getState();
+			}
+		}
+		return null;
+	}
+
+	public boolean isDoubleChest(Chest chest){
+		return getSisterChest(chest) != null;
 	}
 }

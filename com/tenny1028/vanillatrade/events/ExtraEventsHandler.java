@@ -5,8 +5,7 @@ import com.tenny1028.vanillatrade.ShopState;
 import com.tenny1028.vanillatrade.VanillaTrade;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
+import org.bukkit.block.Chest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -29,14 +28,17 @@ public class ExtraEventsHandler implements Listener {
 			ShopChest shop = plugin.getShopConfigManager().getShopChest(e.getBlock().getLocation());
 			if(shop!=null){
 				if(e.getPlayer().getName().equals(shop.getOwner().getName())){
-					plugin.getShopConfigManager().removeShopChest(shop);
-					e.getPlayer().sendMessage("");
-					e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
-					e.getPlayer().sendMessage(ChatColor.GRAY + "Shop has been removed.");
-					e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
-					e.getPlayer().sendMessage("");
+					if(!plugin.isDoubleChest(shop.getChest())) {
+						plugin.getShopConfigManager().removeShopChest(shop);
+						e.getPlayer().sendMessage("");
+						e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
+						e.getPlayer().sendMessage(ChatColor.GRAY + "Shop has been removed.");
+						e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
+						e.getPlayer().sendMessage("");
+					}
 				}else{
 					e.setCancelled(true);
+					e.getPlayer().sendMessage(ChatColor.RED + "You do not own this chest.");
 				}
 			}
 		}
@@ -44,18 +46,22 @@ public class ExtraEventsHandler implements Listener {
 
 	@EventHandler
 	public void onPlaceBlock(BlockPlaceEvent e){
-		BlockFace[] faces = new BlockFace[]{BlockFace.NORTH,BlockFace.EAST,BlockFace.SOUTH,BlockFace.WEST};
-		for(BlockFace face:faces){
-			Block relative = e.getBlock().getRelative(face);
-			if(relative!=null && relative.getType().equals(Material.CHEST)){
-				if(plugin.getShopConfigManager().getShopChest(relative.getLocation())!=null){
-					e.setCancelled(true);
-					e.getPlayer().sendMessage(ChatColor.RED + "Shops cannot be double chests.");
-					return;
+		if(e.getBlock().getType().equals(Material.CHEST)) {
+			Chest chest = plugin.getSisterChest((Chest)e.getBlock().getState());
+			if (chest!= null){
+				ShopChest shop = plugin.getShopConfigManager().getShopChest(chest.getLocation());
+				if(shop!=null){
+					if(shop.getOwner().getName().equals(e.getPlayer().getName())||e.getPlayer().hasPermission("vanillatrade.op")){
+						plugin.getShopConfigManager().saveShopChest(new ShopChest(shop.getOwner(),e.getBlock().getLocation(),shop.getCost()));
+					}else{
+						e.setCancelled(true);
+						e.getPlayer().sendMessage(ChatColor.RED + "You do not own this chest.");
+					}
 				}
 			}
 		}
 	}
+
 
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e){
