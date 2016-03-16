@@ -62,14 +62,11 @@ public class PlayerAsyncChatEventHandler implements Listener {
 
 			if(state.getCurrentShop()!=null) {
 				ShopChest shop = plugin.getShopConfigManager().getShopChest(state.getCurrentShop());
-				if(shop == null) {
-					shop = new ShopChest(e.getPlayer(),plugin.getState(e.getPlayer()).getCurrentShop(), new ItemStack(paymentType));
-					if(plugin.isDoubleChest(shop.getChest())){
-						plugin.getShopConfigManager().saveShopChest(new ShopChest(shop.getOwner(),plugin.getSisterChest(shop.getChest()).getLocation(),shop.getCost()));
-					}
+				if(shop == null){
+					shop = new ShopChest(e.getPlayer(),state.getCurrentShop(),new ItemStack(paymentType));
 				}
 				shop.setCost(new ItemStack(paymentType));
-				plugin.getShopConfigManager().saveShopChest(shop);
+				plugin.getShopConfigManager().saveShopChests(shop);
 
 				e.getPlayer().sendMessage("");
 				e.getPlayer().sendMessage(ChatColor.GRAY + "Payment type set to " + ChatColor.GOLD + paymentType.name());
@@ -106,7 +103,7 @@ public class PlayerAsyncChatEventHandler implements Listener {
 			}
 
 			shop.getCost().setAmount(paymentAmount);
-			plugin.getShopConfigManager().saveShopChest(shop);
+			plugin.getShopConfigManager().saveShopChests(shop);
 
 			e.getPlayer().sendMessage("");
 			e.getPlayer().sendMessage(ChatColor.GRAY + "Payment amount set to " + ChatColor.GOLD + paymentAmount);

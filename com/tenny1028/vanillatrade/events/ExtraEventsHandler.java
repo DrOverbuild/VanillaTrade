@@ -35,6 +35,8 @@ public class ExtraEventsHandler implements Listener {
 						e.getPlayer().sendMessage(ChatColor.GRAY + "Shop has been removed.");
 						e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
 						e.getPlayer().sendMessage("");
+					}else{
+						plugin.getShopConfigManager().removeShopChest(shop);
 					}
 				}else{
 					e.setCancelled(true);

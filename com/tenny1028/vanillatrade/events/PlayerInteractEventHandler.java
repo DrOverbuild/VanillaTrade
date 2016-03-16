@@ -43,11 +43,11 @@ public class PlayerInteractEventHandler implements Listener{
 
 		ShopChest shop = plugin.getShopConfigManager().getShopChest(e.getClickedBlock().getLocation());
 		if (shop == null) {
-			if(plugin.getState(e.getPlayer()).equals(ShopState.SETUP_CHOOSE_CHEST)) {
+			if(plugin.getState(e.getPlayer()).equals(ShopState.SETUP_CHOOSE_CHEST)||plugin.getState(e.getPlayer()).equals(ShopState.SETUP_CHOOSE_PAYMENT_TYPE)) {
 				e.setCancelled(true);
 				e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
 				e.getPlayer().sendMessage(ChatColor.GRAY + "Setting up a new Shop chest.");
-				e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment type.");
+				e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment type or choose another chest.");
 				e.getPlayer().sendMessage(ChatColor.GRAY + "Examples: " + ChatColor.GOLD + "diamond" + ChatColor.GRAY + " or " + ChatColor.GOLD + "gold_nugget");
 				e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
 				ShopState state = ShopState.SETUP_CHOOSE_PAYMENT_TYPE;
@@ -55,14 +55,14 @@ public class PlayerInteractEventHandler implements Listener{
 				plugin.setState(e.getPlayer(), state);
 			}
 		}else{
-			if(plugin.getState(e.getPlayer()).equals(ShopState.SETUP_CHOOSE_CHEST)) {
+			if(plugin.getState(e.getPlayer()).equals(ShopState.SETUP_CHOOSE_CHEST)||plugin.getState(e.getPlayer()).equals(ShopState.SETUP_CHOOSE_PAYMENT_TYPE)) {
 				if (e.getPlayer().getName().equals(shop.getOwner().getName()) || e.getPlayer().hasPermission("vanillatrade.op")) {
 					e.setCancelled(true);
 					e.getPlayer().sendMessage(ChatColor.GOLD + "++++++++++++ SHOP SETUP ++++++++++++");
 					e.getPlayer().sendMessage(ChatColor.GRAY + "Editing an existing Shop chest.");
 					e.getPlayer().sendMessage(ChatColor.GRAY + "Cost of items in chest: " + ChatColor.GOLD + shop.getCost().getAmount() + " " +
 							shop.getCost().getType().name().toLowerCase() + ((shop.getCost().getAmount() > 1 || shop.getCost().getAmount() == 0) ? "s" : ""));
-					e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment type.");
+					e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment type or choose another chest.");
 					e.getPlayer().sendMessage(ChatColor.GRAY + "Examples: " + ChatColor.GOLD + "diamond" + ChatColor.GRAY + " or " + ChatColor.GOLD + "gold_nugget");
 					e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++++");
 					ShopState state = ShopState.SETUP_CHOOSE_PAYMENT_TYPE;

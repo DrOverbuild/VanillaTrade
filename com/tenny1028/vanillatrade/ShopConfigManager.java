@@ -58,6 +58,13 @@ public class ShopConfigManager {
 		}
 	}
 
+	public void saveShopChests(ShopChest shopChest){
+		saveShopChest(shopChest);
+		if(plugin.isDoubleChest(shopChest.getChest())){
+			saveShopChest(new ShopChest(shopChest.getOwner(),plugin.getSisterChest(shopChest.getChest()).getLocation(),shopChest.getCost()));
+		}
+	}
+
 	public void saveShopChest(ShopChest shopChest){
 		FileConfiguration config;
 		try{
