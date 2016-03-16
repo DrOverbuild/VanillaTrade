@@ -14,7 +14,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by jasper on 3/14/16.
@@ -89,10 +90,17 @@ public class PlayerInteractEventHandler implements Listener{
 			if(item!=null){
 				if(!item.getType().equals(shop.getCost().getType())){
 					ItemStack copy = new ItemStack(item);
-					String lore = ChatColor.GOLD + "Cost: " + shop.getCost().getAmount() + " " +
+					String loreLine = ChatColor.GOLD + "Cost: " + shop.getCost().getAmount() + " " +
 							shop.getCost().getType().name().replace("_", " ").toLowerCase() + ((shop.getCost().getAmount()==1)?"":"s");
 					ItemMeta copyMeta = copy.getItemMeta();
-					copyMeta.setLore(Collections.singletonList(lore));
+					List<String> lore;
+					if(copyMeta.hasLore()){
+						lore = copyMeta.getLore();
+					}else{
+						lore = new ArrayList<>();
+					}
+					lore.add(loreLine);
+					copyMeta.setLore(lore);
 					copy.setItemMeta(copyMeta);
 					inv.setItem(i,copy);
 				}

@@ -15,6 +15,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.List;
+
 /**
  * Created by jasper on 3/14/16.
  */
@@ -124,7 +126,13 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 					if(itemBeingPurchased != null) {
 						player.getInventory().removeItem(currentShop.getCost());
 						ItemMeta currentItemMeta = itemBeingPurchased.getItemMeta();
-						currentItemMeta.setLore(null);
+						if(currentItemMeta.hasLore()&&currentItemMeta.getLore().size() > 1){
+							List<String> lore = currentItemMeta.getLore();
+							lore.remove(lore.size()-1);
+							currentItemMeta.setLore(lore);
+						}else{
+							currentItemMeta.setLore(null);
+						}
 						itemBeingPurchased.setItemMeta(currentItemMeta);
 						player.getInventory().addItem(itemBeingPurchased);
 						currentShop.getChest().getInventory().removeItem(itemBeingPurchased);
