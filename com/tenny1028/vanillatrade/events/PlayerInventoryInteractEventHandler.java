@@ -64,7 +64,7 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 			}
 
 			if(numberOfItemsInCustomersInventory < currentShop.getCost().getAmount()){
-				player.sendMessage(ChatColor.RED + "You do not have enough " + currentShop.getCost().getType().name().toLowerCase() +
+				player.sendMessage(ChatColor.RED + "You do not have enough " + currentShop.getCost().getType().name().toLowerCase().replace("_", " ") +
 						"s. You have " + numberOfItemsInCustomersInventory + ", you need " + currentShop.getCost().getAmount() + ".");
 				player.closeInventory();
 				return;

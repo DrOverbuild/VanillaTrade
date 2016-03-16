@@ -61,7 +61,7 @@ public class PlayerInteractEventHandler implements Listener{
 					e.getPlayer().sendMessage(ChatColor.GOLD + "++++++++++++ SHOP SETUP ++++++++++++");
 					e.getPlayer().sendMessage(ChatColor.GRAY + "Editing an existing Shop chest.");
 					e.getPlayer().sendMessage(ChatColor.GRAY + "Cost of items in chest: " + ChatColor.GOLD + shop.getCost().getAmount() + " " +
-							shop.getCost().getType().name().toLowerCase() + ((shop.getCost().getAmount() > 1 || shop.getCost().getAmount() == 0) ? "s" : ""));
+							shop.getCost().getType().name().toLowerCase().replace("_", " ") + ((shop.getCost().getAmount() > 1 || shop.getCost().getAmount() == 0) ? "s" : ""));
 					e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment type or choose another chest.");
 					e.getPlayer().sendMessage(ChatColor.GRAY + "Examples: " + ChatColor.GOLD + "diamond" + ChatColor.GRAY + " or " + ChatColor.GOLD + "gold_nugget");
 					e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++++");
