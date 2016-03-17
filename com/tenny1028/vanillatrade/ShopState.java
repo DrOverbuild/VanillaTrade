@@ -11,6 +11,16 @@ public enum ShopState {
 
 	Location currentShop = null;
 
+	int itemSlot = -1;
+
+	public int getItemSlot() {
+		return itemSlot;
+	}
+
+	public void setItemSlot(int itemSlot) {
+		this.itemSlot = itemSlot;
+	}
+
 	public void setCurrentShop(Location currentShop) {
 		this.currentShop = currentShop;
 	}

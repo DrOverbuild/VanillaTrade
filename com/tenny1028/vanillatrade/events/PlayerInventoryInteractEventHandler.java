@@ -115,6 +115,7 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 			player.openInventory(inv);
 
 			ShopState state = ShopState.TRADE_CONFIRMATION;
+			state.setItemSlot(e.getSlot());
 			state.setCurrentShop(currentShop.getLocation());
 			plugin.setState(player,state);
 		}else{
@@ -135,7 +136,7 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 						}
 						itemBeingPurchased.setItemMeta(currentItemMeta);
 						player.getInventory().addItem(itemBeingPurchased);
-						currentShop.getChest().getInventory().removeItem(itemBeingPurchased);
+						currentShop.getChest().getInventory().setItem(plugin.getState(player).getItemSlot(),null);
 						currentShop.getChest().getInventory().addItem(currentShop.getCost());
 					}
 				}
