@@ -7,11 +7,25 @@ commands:
     description: Begin shop setup.
     permission: vanillatrade.sell
     usage: None
+  lock:
+    description: Lock a chest.
+    permission: vanillatrade.lock
+    usage: None
+  unlock:
+    description: Unlock the chest.
+    permission: vanillatrade.unlock
+    usage: None
 
 permissions:
   vanillatrade.sell:
     default: true
     description: Allows players to setup a shop.
+  vanillatrade.lock:
+    default: true
+    description: Allows players to lock a chest
+  vanillatrade.unlock:
+    default: true
+    description: Allows players to unlock a chest
   vanillatrade.op:
     default: op
     description: Allows players to edit other shops.

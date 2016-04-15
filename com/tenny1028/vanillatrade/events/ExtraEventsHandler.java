@@ -1,7 +1,9 @@
 package com.tenny1028.vanillatrade.events;
 
-import com.tenny1028.vanillatrade.ShopChest;
-import com.tenny1028.vanillatrade.ShopState;
+import com.tenny1028.vanillatrade.protection.AccessLevel;
+import com.tenny1028.vanillatrade.protection.LockedContainer;
+import com.tenny1028.vanillatrade.protection.ShopChest;
+import com.tenny1028.vanillatrade.VanillaTradeState;
 import com.tenny1028.vanillatrade.VanillaTrade;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -25,18 +27,12 @@ public class ExtraEventsHandler implements Listener {
 	@EventHandler
 	public void onPlayerBreakBlock(BlockBreakEvent e){
 		if(e.getBlock().getType().equals(Material.CHEST)){
-			ShopChest shop = plugin.getShopConfigManager().getShopChest(e.getBlock().getLocation());
-			if(shop!=null){
-				if(e.getPlayer().getName().equals(shop.getOwner().getName())||e.getPlayer().hasPermission("vanillatrade.op")){
-					if(!plugin.isDoubleChest(shop.getChest())) {
-						plugin.getShopConfigManager().removeShopChest(shop);
-						e.getPlayer().sendMessage("");
-						e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
-						e.getPlayer().sendMessage(ChatColor.GRAY + "Shop has been removed.");
-						e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
-						e.getPlayer().sendMessage("");
-					}else{
-						plugin.getShopConfigManager().removeShopChest(shop);
+			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(e.getBlock().getLocation());
+			if(container!=null){
+				if(AccessLevel.hasPermission(container.getAccessLevelOf(e.getPlayer()),AccessLevel.FULL_ACCESS)){
+					plugin.getLockedContainerConfigManager().unlockContainer(container);
+					if(!plugin.isDoubleChest(container.getChest())) {
+						e.getPlayer().sendMessage(ChatColor.GRAY + "This chest has been unlocked.");
 					}
 				}else{
 					e.setCancelled(true);
@@ -50,12 +46,17 @@ public class ExtraEventsHandler implements Listener {
 	public void onPlaceBlock(BlockPlaceEvent e){
 		if(e.getBlock().getType().equals(Material.CHEST)) {
 			Chest chest = plugin.getSisterChest((Chest)e.getBlock().getState());
-			if (chest!= null){
-				ShopChest shop = plugin.getShopConfigManager().getShopChest(chest.getLocation());
-				if(shop!=null){
-					if(shop.getOwner().getName().equals(e.getPlayer().getName())||e.getPlayer().hasPermission("vanillatrade.op")){
-						plugin.getShopConfigManager().saveShopChest(new ShopChest(shop.getOwner(),e.getBlock().getLocation(),shop.getCost()));
-					}else{
+			if (chest != null) {
+				LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(chest.getLocation());
+				if (container != null) {
+					if (AccessLevel.hasPermission(container.getAccessLevelOf(e.getPlayer()),AccessLevel.FULL_ACCESS)) {
+						if(container instanceof ShopChest) {
+							plugin.getLockedContainerConfigManager().saveShopChest(new ShopChest(container.getOwner(), e.getBlock().getLocation(), ((ShopChest)container).getCost()));
+						}else{
+							plugin.getLockedContainerConfigManager().saveContainer(new LockedContainer(container.getOwner(),
+									e.getBlock().getLocation(),container.getPublicAccessLevel(),container.getFriendsAccessLevel(),container.getFriends()));
+						}
+					} else {
 						e.setCancelled(true);
 						e.getPlayer().sendMessage(ChatColor.RED + "You do not own this chest.");
 					}
@@ -64,9 +65,8 @@ public class ExtraEventsHandler implements Listener {
 		}
 	}
 
-
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e){
-		plugin.setState(e.getPlayer(), ShopState.NONE);
+		plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 	}
 }

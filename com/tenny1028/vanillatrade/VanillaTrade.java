@@ -1,6 +1,8 @@
 package com.tenny1028.vanillatrade;
 
+import com.tenny1028.vanillatrade.commands.LockCommand;
 import com.tenny1028.vanillatrade.commands.ShopCommand;
+import com.tenny1028.vanillatrade.commands.UnlockCommand;
 import com.tenny1028.vanillatrade.events.ExtraEventsHandler;
 import com.tenny1028.vanillatrade.events.PlayerAsyncChatEventHandler;
 import com.tenny1028.vanillatrade.events.PlayerInteractEventHandler;
@@ -22,14 +24,14 @@ public class VanillaTrade extends JavaPlugin{
 
 	public static VanillaTrade instance;
 
-	Map<Player, ShopState> playerState = new HashMap<>();
-	ShopConfigManager shopConfigManager;
+	Map<Player, VanillaTradeState> playerState = new HashMap<>();
+	LockedContainerConfigManager shopConfigManager;
 
 	@Override
 	public void onEnable() {
 		instance = this;
 
-		shopConfigManager = new ShopConfigManager(this);
+		shopConfigManager = new LockedContainerConfigManager(this);
 
 		loadEvents();
 		loadCommands();
@@ -40,9 +42,9 @@ public class VanillaTrade extends JavaPlugin{
 	@Override
 	public void onDisable() {
 		for(Player p : playerState.keySet()){
-			if(getState(p).equals(ShopState.BROWSING_SHOP)||getState(p).equals(ShopState.TRADE_CONFIRMATION)){
+			if(getState(p).equals(VanillaTradeState.BROWSING_SHOP)||getState(p).equals(VanillaTradeState.TRADE_CONFIRMATION)){
 				p.closeInventory();
-			}else if(!getState(p).equals(ShopState.NONE)){
+			}else if(!getState(p).equals(VanillaTradeState.NONE)){
 
 			}
 		}
@@ -57,18 +59,22 @@ public class VanillaTrade extends JavaPlugin{
 
 	public void loadCommands(){
 		getCommand("shop").setExecutor(new ShopCommand(this));
+		LockCommand lockCommand = new LockCommand(this);
+		getCommand("lock").setExecutor(lockCommand);
+		getCommand("lock").setTabCompleter(lockCommand);
+		getCommand("unlock").setExecutor(new UnlockCommand(this));
 	}
 
-	public ShopState getState(Player p){
+	public VanillaTradeState getState(Player p){
 		if(playerState.containsKey(p)){
 			return playerState.get(p);
 		}else{
-			return ShopState.NONE;
+			return VanillaTradeState.NONE;
 		}
 	}
 
-	public void setState(Player p, ShopState state){
-		if(state.equals(ShopState.NONE)){
+	public void setState(Player p, VanillaTradeState state){
+		if(state.equals(VanillaTradeState.NONE)){
 			playerState.remove(p);
 		}else {
 			playerState.put(p, state);
@@ -77,7 +83,7 @@ public class VanillaTrade extends JavaPlugin{
 		getLogger().info("State of " + p.getName() + ": " + state.name());
 	}
 
-	public ShopConfigManager getShopConfigManager() {
+	public LockedContainerConfigManager getLockedContainerConfigManager() {
 		return shopConfigManager;
 	}
 

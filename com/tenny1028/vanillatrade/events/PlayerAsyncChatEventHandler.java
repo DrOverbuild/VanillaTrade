@@ -1,7 +1,7 @@
 package com.tenny1028.vanillatrade.events;
 
-import com.tenny1028.vanillatrade.ShopChest;
-import com.tenny1028.vanillatrade.ShopState;
+import com.tenny1028.vanillatrade.protection.ShopChest;
+import com.tenny1028.vanillatrade.VanillaTradeState;
 import com.tenny1028.vanillatrade.VanillaTrade;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -22,26 +22,22 @@ public class PlayerAsyncChatEventHandler implements Listener {
 
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent e){
-		ShopState state = plugin.getState(e.getPlayer());
+		VanillaTradeState state = plugin.getState(e.getPlayer());
 
-		if(state.equals(ShopState.NONE)){
+		if(state.equals(VanillaTradeState.NONE)){
 			return;
 		}
 
 		if(e.getMessage().equalsIgnoreCase("cancel")){
 			e.setCancelled(true);
 
-			e.getPlayer().sendMessage("");
-			e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
-			e.getPlayer().sendMessage(ChatColor.GRAY + "Cancelled shop setup.");
-			e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
-			e.getPlayer().sendMessage("");
+			e.getPlayer().sendMessage(ChatColor.GRAY + "Cancelled setup.");
 
-			plugin.setState(e.getPlayer(), ShopState.NONE);
+			plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 			return;
 		}
 
-		if(state.equals(ShopState.SETUP_CHOOSE_PAYMENT_TYPE)){
+		if(state.equals(VanillaTradeState.SHOP_SETUP_CHOOSE_PAYMENT_TYPE)){
 			e.setCancelled(true);
 
 			Material paymentType = null;
@@ -60,13 +56,13 @@ public class PlayerAsyncChatEventHandler implements Listener {
 				return;
 			}
 
-			if(state.getCurrentShop()!=null) {
-				ShopChest shop = plugin.getShopConfigManager().getShopChest(state.getCurrentShop());
+			if(state.getCurrentBlock()!=null) {
+				ShopChest shop = plugin.getLockedContainerConfigManager().getShopChest(state.getCurrentBlock());
 				if(shop == null){
-					shop = new ShopChest(e.getPlayer(),state.getCurrentShop(),new ItemStack(paymentType));
+					shop = new ShopChest(e.getPlayer(),state.getCurrentBlock(),new ItemStack(paymentType));
 				}
 				shop.setCost(new ItemStack(paymentType));
-				plugin.getShopConfigManager().saveShopChests(shop);
+				plugin.getLockedContainerConfigManager().saveShopChests(shop);
 
 				e.getPlayer().sendMessage("");
 				e.getPlayer().sendMessage(ChatColor.GRAY + "Payment type set to " + ChatColor.GOLD + paymentType.name());
@@ -76,12 +72,12 @@ public class PlayerAsyncChatEventHandler implements Listener {
 				e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
 
 
-				state = ShopState.SETUP_CHOOSE_PAYMENT_AMOUNT;
-				state.setCurrentShop(shop.getLocation());
+				state = VanillaTradeState.SHOP_SETUP_CHOOSE_PAYMENT_AMOUNT;
+				state.setCurrentBlock(shop.getLocation());
 				plugin.setState(e.getPlayer(),state);
 			}
 
-		}else if(state.equals(ShopState.SETUP_CHOOSE_PAYMENT_AMOUNT)){
+		}else if(state.equals(VanillaTradeState.SHOP_SETUP_CHOOSE_PAYMENT_AMOUNT)){
 			e.setCancelled(true);
 			int paymentAmount = 1;
 
@@ -93,7 +89,7 @@ public class PlayerAsyncChatEventHandler implements Listener {
 				return;
 			}
 
-			ShopChest shop = plugin.getShopConfigManager().getShopChest(state.getCurrentShop());
+			ShopChest shop = plugin.getLockedContainerConfigManager().getShopChest(state.getCurrentBlock());
 
 			if(paymentAmount < 0 || paymentAmount > shop.getCost().getMaxStackSize()){
 				e.getPlayer().sendMessage("");
@@ -103,7 +99,7 @@ public class PlayerAsyncChatEventHandler implements Listener {
 			}
 
 			shop.getCost().setAmount(paymentAmount);
-			plugin.getShopConfigManager().saveShopChests(shop);
+			plugin.getLockedContainerConfigManager().saveShopChests(shop);
 
 			e.getPlayer().sendMessage("");
 			e.getPlayer().sendMessage(ChatColor.GRAY + "Payment amount set to " + ChatColor.GOLD + paymentAmount);
@@ -113,7 +109,7 @@ public class PlayerAsyncChatEventHandler implements Listener {
 			e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
 			e.getPlayer().sendMessage("");
 
-			plugin.setState(e.getPlayer(), ShopState.NONE);
+			plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 		}
 	}
 }

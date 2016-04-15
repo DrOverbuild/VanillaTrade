@@ -1,20 +1,27 @@
 package com.tenny1028.vanillatrade.events;
 
-import com.tenny1028.vanillatrade.ShopChest;
-import com.tenny1028.vanillatrade.ShopState;
+import com.tenny1028.vanillatrade.protection.AccessLevel;
+import com.tenny1028.vanillatrade.protection.LockedContainer;
+import com.tenny1028.vanillatrade.protection.ShopChest;
+import com.tenny1028.vanillatrade.VanillaTradeState;
 import com.tenny1028.vanillatrade.VanillaTrade;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.security.acl.LastOwnerException;
 import java.util.List;
 
 /**
@@ -38,22 +45,40 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 
 		Player player = (Player)e.getWhoClicked();
 
-		if(!e.getInventory().getName().startsWith(ChatColor.BOLD + "Trade with")&&!e.getInventory().getName().equals(confirmationInvName)){
-			return;
+		if(e.getInventory().getName().startsWith(ChatColor.BOLD + "Trade with")||e.getInventory().getName().equals(confirmationInvName)){
+			if(plugin.getState(player).getCurrentBlock() != null) {
+				LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(plugin.getState(player).getCurrentBlock());
+				playerClicksOnShopChest(e, player, container);
+				return;
+			}
 		}
 
+		if(e.getInventory().getHolder() instanceof Chest || e.getInventory().getName().equals(confirmationInvName)){
+			Chest chest = (Chest)e.getInventory().getHolder();
+
+			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(chest.getLocation());
+
+			if(container == null){
+				return;
+			}
+
+			playerClicksOnProtectedInventory(e,player,container);
+		}
+
+
+
+
+	}
+
+	private void playerClicksOnShopChest(InventoryClickEvent e, Player player, LockedContainer container){
 		e.setCancelled(true);
-
-		if(!e.getClickedInventory().getName().startsWith(ChatColor.BOLD + "Trade with")&&!e.getClickedInventory().getName().equals(confirmationInvName)){
-			return;
-		}
 
 		if(e.getCurrentItem() == null){
 			return;
 		}
 
-		if(plugin.getState(player).equals(ShopState.BROWSING_SHOP)){
-			ShopChest currentShop = plugin.getShopConfigManager().getShopChest(plugin.getState(player).getCurrentShop());
+		if(plugin.getState(player).equals(VanillaTradeState.BROWSING_SHOP)){
+			ShopChest currentShop = (ShopChest)container;
 			int numberOfItemsInCustomersInventory = 0;
 			for(ItemStack i : player.getInventory().getContents()){
 				if(i != null){
@@ -114,12 +139,12 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 
 			player.openInventory(inv);
 
-			ShopState state = ShopState.TRADE_CONFIRMATION;
+			VanillaTradeState state = VanillaTradeState.TRADE_CONFIRMATION;
 			state.setItemSlot(e.getSlot());
-			state.setCurrentShop(currentShop.getLocation());
+			state.setCurrentBlock(currentShop.getLocation());
 			plugin.setState(player,state);
 		}else{
-			ShopChest currentShop = plugin.getShopConfigManager().getShopChest(plugin.getState(player).getCurrentShop());
+			ShopChest currentShop = plugin.getLockedContainerConfigManager().getShopChest(plugin.getState(player).getCurrentBlock());
 			ItemStack item = e.getCurrentItem();
 			if(item.hasItemMeta()&&item.getItemMeta().hasDisplayName()){
 				if(item.getItemMeta().getDisplayName().toLowerCase().contains("yes")){
@@ -142,16 +167,49 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 				}
 
 				player.closeInventory();
-				plugin.setState(player,ShopState.NONE);
+				plugin.setState(player, VanillaTradeState.NONE);
 			}
+		}
+	}
+
+	private void playerClicksOnProtectedInventory(InventoryClickEvent e, Player player, LockedContainer container){
+		if(!AccessLevel.hasPermission(container.getAccessLevelOf(player),AccessLevel.READ_WRITE)){
+			e.setCancelled(true);
 		}
 	}
 
 	@EventHandler
 	public void onPlayerInventoryClose(InventoryCloseEvent e){
 		if(e.getPlayer() instanceof Player) {
-			if(plugin.getState((Player)e.getPlayer()).equals(ShopState.BROWSING_SHOP)||plugin.getState((Player)e.getPlayer()).equals(ShopState.TRADE_CONFIRMATION)) {
-				plugin.setState((Player)e.getPlayer(),ShopState.NONE);
+			if(plugin.getState((Player)e.getPlayer()).equals(VanillaTradeState.BROWSING_SHOP)||plugin.getState((Player)e.getPlayer()).equals(VanillaTradeState.TRADE_CONFIRMATION)) {
+				plugin.setState((Player)e.getPlayer(), VanillaTradeState.NONE);
+			}
+		}
+	}
+
+	@EventHandler
+	public void onInventoryMove(InventoryMoveItemEvent e){
+		if(e.getSource().getHolder() instanceof Chest && !(e.getDestination().getHolder() instanceof Player)){
+			Chest chest = (Chest)e.getSource().getHolder();
+
+			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(chest.getLocation());
+
+			if(container != null){
+				if(!AccessLevel.hasPermission(container.getPublicAccessLevel(),AccessLevel.READ_WRITE)){
+					e.setCancelled(true);
+				}
+			}
+		}
+
+		if(e.getDestination().getHolder() instanceof Chest && !(e.getSource().getHolder() instanceof Player)){
+			Chest chest = (Chest)e.getDestination().getHolder();
+
+			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(chest.getLocation());
+
+			if(container != null){
+				if(!AccessLevel.hasPermission(container.getPublicAccessLevel(),AccessLevel.READ_WRITE)){
+					e.setCancelled(true);
+				}
 			}
 		}
 	}
