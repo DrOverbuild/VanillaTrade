@@ -67,7 +67,6 @@ public class LockedContainerConfigManager {
 	}
 
 	public void saveContainer(LockedContainer container){
-
 		if(container instanceof ShopChest){
 			saveShopChest((ShopChest)container);
 			return;
