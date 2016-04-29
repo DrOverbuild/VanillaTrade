@@ -4,7 +4,6 @@ import com.tenny1028.vanillatrade.protection.AccessLevel;
 import com.tenny1028.vanillatrade.protection.LockedContainer;
 import com.tenny1028.vanillatrade.protection.ShopChest;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -13,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,18 +47,16 @@ public class LockedContainerConfigManager {
 		}catch (IOException|InvalidConfigurationException e){
 			return null;
 		}
-		String paymentType = config.getString("payment.type", "GOLD_INGOT");
-		int paymentAmount = config.getInt("payment.amount",1);
 		String ownerUUID = config.getString("owner", "");
 		String publicAccessLevel = config.getString("access-level.public",AccessLevel.NO_ACCESS.name());
 		String friendsAccessLevel = config.getString("access-level.friends",AccessLevel.READ_WRITE.name());
 		List<String> friends = config.getStringList("friends");
+		ItemStack payment = ItemStackManager.getPayment(config);
 
 		try {
 			OfflinePlayer owner = plugin.getServer().getOfflinePlayer(UUID.fromString(ownerUUID));
 
-			if(config.getBoolean("is-shop",false)||config.contains("payment")){
-				ItemStack payment = new ItemStack(Material.matchMaterial(paymentType), paymentAmount);
+			if(payment != null){
 				return new ShopChest(owner,location,AccessLevel.valueOf(friendsAccessLevel),friends,payment);
 			}
 
@@ -130,6 +126,7 @@ public class LockedContainerConfigManager {
 
 		config.set("payment.type",shopChest.getCost().getType().name());
 		config.set("payment.amount",shopChest.getCost().getAmount());
+		config.set("payment.data",shopChest.getCost().getDurability());
 		config.set("owner",shopChest.getOwner().getUniqueId().toString());
 		config.set("is-shop",true);
 		config.set("public-permission", AccessLevel.NO_ACCESS.toString());

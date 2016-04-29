@@ -1,8 +1,9 @@
 package com.tenny1028.vanillatrade.events;
 
-import com.tenny1028.vanillatrade.protection.ShopChest;
-import com.tenny1028.vanillatrade.VanillaTradeState;
+import com.tenny1028.vanillatrade.ItemStackManager;
 import com.tenny1028.vanillatrade.VanillaTrade;
+import com.tenny1028.vanillatrade.VanillaTradeState;
+import com.tenny1028.vanillatrade.protection.ShopChest;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -42,14 +43,9 @@ public class PlayerAsyncChatEventHandler implements Listener {
 
 			Material paymentType = null;
 
-			try{
-				int id = Integer.parseInt(e.getMessage());
-				paymentType = Material.getMaterial(id);
-			}catch (NumberFormatException ex) {
-				paymentType = Material.matchMaterial(e.getMessage().replace(" ","_"));
-			}
+			ItemStack payment = ItemStackManager.parsePayment(e.getMessage());
 
-			if(paymentType == null){
+			if(payment == null){
 				e.getPlayer().sendMessage("");
 				e.getPlayer().sendMessage(ChatColor.GOLD + e.getMessage() + ChatColor.GRAY +" is not a valid item. Please try again.");
 
@@ -59,13 +55,14 @@ public class PlayerAsyncChatEventHandler implements Listener {
 			if(state.getCurrentBlock()!=null) {
 				ShopChest shop = plugin.getLockedContainerConfigManager().getShopChest(state.getCurrentBlock());
 				if(shop == null){
-					shop = new ShopChest(e.getPlayer(),state.getCurrentBlock(),new ItemStack(paymentType));
+					shop = new ShopChest(e.getPlayer(),state.getCurrentBlock(),payment);
 				}
-				shop.setCost(new ItemStack(paymentType));
+				shop.setCost(payment);
 				plugin.getLockedContainerConfigManager().saveShopChests(shop);
 
 				e.getPlayer().sendMessage("");
-				e.getPlayer().sendMessage(ChatColor.GRAY + "Payment type set to " + ChatColor.GOLD + paymentType.name());
+				e.getPlayer().sendMessage(ChatColor.GRAY + "Payment type set to " + ChatColor.GOLD +
+						ItemStackManager.itemStackToHumanReadableFormat(payment));
 				e.getPlayer().sendMessage("");
 				e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
 				e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment amount.");

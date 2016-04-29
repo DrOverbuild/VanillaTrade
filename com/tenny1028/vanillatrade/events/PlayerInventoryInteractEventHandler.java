@@ -1,14 +1,13 @@
 package com.tenny1028.vanillatrade.events;
 
+import com.tenny1028.vanillatrade.VanillaTrade;
+import com.tenny1028.vanillatrade.VanillaTradeState;
 import com.tenny1028.vanillatrade.protection.AccessLevel;
 import com.tenny1028.vanillatrade.protection.LockedContainer;
 import com.tenny1028.vanillatrade.protection.ShopChest;
-import com.tenny1028.vanillatrade.VanillaTradeState;
-import com.tenny1028.vanillatrade.VanillaTrade;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,12 +15,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.security.acl.LastOwnerException;
 import java.util.List;
 
 /**
@@ -78,6 +75,10 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 		}
 
 		if(plugin.getState(player).equals(VanillaTradeState.BROWSING_SHOP)){
+			if(!e.getClickedInventory().getName().startsWith(ChatColor.BOLD + "Trade with")){
+				return;
+			}
+
 			ShopChest currentShop = (ShopChest)container;
 			int numberOfItemsInCustomersInventory = 0;
 			for(ItemStack i : player.getInventory().getContents()){
@@ -96,10 +97,6 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 			}
 
 			ItemStack clickedItem = e.getCurrentItem();
-
-			if(clickedItem == null){
-				return;
-			}
 
 			if(clickedItem.getType().equals(Material.AIR)){
 				return;
