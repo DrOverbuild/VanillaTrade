@@ -144,8 +144,4 @@ public class LockedContainerConfigManager {
 			saveShopChest(new ShopChest(shopChest.getOwner(),plugin.getSisterChest(shopChest.getChest()).getLocation(),shopChest.getCost()));
 		}
 	}
-
-	public void removeShopChest(ShopChest shopChest){
-		new File(shopsDir, getConfigFileName(shopChest.getLocation())).delete();
-	}
 }
