@@ -18,12 +18,12 @@ import java.util.UUID;
 /**
  * Created by jasper on 3/14/16.
  */
-public class LockedContainerConfigManager {
+public class ConfigManager {
 	VanillaTrade plugin;
 
 	File shopsDir;
 
-	public LockedContainerConfigManager(VanillaTrade plugin) {
+	public ConfigManager(VanillaTrade plugin) {
 		this.plugin = plugin;
 
 		shopsDir = new File(plugin.getDataFolder(),"protected-containers");

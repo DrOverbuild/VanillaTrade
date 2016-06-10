@@ -79,6 +79,10 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 				return;
 			}
 
+			if(e.getRawSlot() > container.getChest().getInventory().getSize()) {
+				return;
+			}
+
 			ShopChest currentShop = (ShopChest)container;
 			int numberOfItemsInCustomersInventory = 0;
 			for(ItemStack i : player.getInventory().getContents()){

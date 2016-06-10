@@ -25,13 +25,13 @@ public class VanillaTrade extends JavaPlugin{
 	public static VanillaTrade instance;
 
 	Map<Player, VanillaTradeState> playerState = new HashMap<>();
-	LockedContainerConfigManager shopConfigManager;
+	ConfigManager shopConfigManager;
 
 	@Override
 	public void onEnable() {
 		instance = this;
 
-		shopConfigManager = new LockedContainerConfigManager(this);
+		shopConfigManager = new ConfigManager(this);
 
 		loadEvents();
 		loadCommands();
@@ -83,7 +83,7 @@ public class VanillaTrade extends JavaPlugin{
 		getLogger().info("State of " + p.getName() + ": " + state.name());
 	}
 
-	public LockedContainerConfigManager getLockedContainerConfigManager() {
+	public ConfigManager getLockedContainerConfigManager() {
 		return shopConfigManager;
 	}
 
