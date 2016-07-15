@@ -208,7 +208,7 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(chest.getLocation());
 
 			if(container != null){
-				if(!AccessLevel.hasPermission(container.getPublicAccessLevel(),AccessLevel.READ_WRITE)){
+				if(!AccessLevel.hasPermission(container.getPublicAccessLevel(),AccessLevel.WRITE_ONLY)){
 					e.setCancelled(true);
 				}
 			}

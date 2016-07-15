@@ -12,7 +12,6 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -57,7 +56,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 			}
 
 			if(args[0].equalsIgnoreCase("chmod")){
-				player.sendMessage(ChatColor.RED + "Usage: /lock chmod <friends|public> <NO_ACCESS|READ_ONLY|READ_WRITE|FULL_ACCESS>");
+				player.sendMessage(ChatColor.RED + "Usage: /lock chmod <friends|public> <NO_ACCESS|WRITE_ONLY|READ_ONLY|READ_WRITE|FULL_ACCESS>");
 				return true;
 			}
 
@@ -94,7 +93,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 					try{
 						AccessLevel.valueOf(args[2].toUpperCase());
 					}catch (IllegalArgumentException e){
-						player.sendMessage("Usage: /lock chmod " + args[1] + " <NO_ACCESS|READ_ONLY|READ_WRITE|FULL_ACCESS>");
+						player.sendMessage("Usage: /lock chmod " + args[1] + " <NO_ACCESS|WRITE_ONLY|READ_ONLY|READ_WRITE|FULL_ACCESS>");
 						return true;
 					}
 					VanillaTradeState state = VanillaTradeState.LOCK_SETUP_CHMOD_FRIENDS;
@@ -105,7 +104,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 					try{
 						AccessLevel.valueOf(args[2].toUpperCase());
 					}catch (IllegalArgumentException e){
-						player.sendMessage("Usage: /lock chmod " + args[1] + " <NO_ACCESS|READ_ONLY|READ_WRITE|FULL_ACCESS>");
+						player.sendMessage("Usage: /lock chmod " + args[1] + " <NO_ACCESS|WRITE_ONLY|READ_ONLY|READ_WRITE|FULL_ACCESS>");
 						return true;
 					}
 					VanillaTradeState state = VanillaTradeState.LOCK_SETUP_CHMOD_PUBLIC;
@@ -114,7 +113,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 					player.sendMessage(ChatColor.GRAY + "Right click chest to change permissions of the chest.");
 				}
 			}else{
-				player.sendMessage("Usage: /lock chmod " + args[1] + " <NO_ACCESS|READ_ONLY|READ_WRITE|FULL_ACCESS>");
+				player.sendMessage("Usage: /lock chmod " + args[1] + " <NO_ACCESS|WRITE_ONLY|READ_ONLY|READ_WRITE|FULL_ACCESS>");
 			}
 		}else{
 			player.sendMessage(ChatColor.RED + "Usage: /lock <add|chomod|owner|remove>");

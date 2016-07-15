@@ -31,7 +31,7 @@ public class ConfigManager {
 	}
 
 	public String getConfigFileName(Location location){
-		return location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + ".yml";
+		return location.getWorld().getName() + System.getProperty("file.separator") + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + ".yml";
 	}
 
 	public YamlConfiguration getConfigOfShop(Location location) throws IOException, InvalidConfigurationException {

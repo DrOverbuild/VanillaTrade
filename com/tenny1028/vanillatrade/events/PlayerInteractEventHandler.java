@@ -1,10 +1,10 @@
 package com.tenny1028.vanillatrade.events;
 
+import com.tenny1028.vanillatrade.VanillaTrade;
+import com.tenny1028.vanillatrade.VanillaTradeState;
 import com.tenny1028.vanillatrade.protection.AccessLevel;
 import com.tenny1028.vanillatrade.protection.LockedContainer;
 import com.tenny1028.vanillatrade.protection.ShopChest;
-import com.tenny1028.vanillatrade.VanillaTradeState;
-import com.tenny1028.vanillatrade.VanillaTrade;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -117,7 +117,8 @@ public class PlayerInteractEventHandler implements Listener{
 					} else if(plugin.getState(e.getPlayer()).equals(VanillaTradeState.LOCK_SETUP_CHANGE_OWNER)){
 						lockSetupChangeOwner(e,container);
 					}
-				}else if(AccessLevel.hasPermission(container.getAccessLevelOf(e.getPlayer()),AccessLevel.READ_ONLY)) {
+				}else if(AccessLevel.hasPermission(container.getAccessLevelOf(e.getPlayer()),AccessLevel.READ_ONLY)
+						&& !container.getAccessLevelOf(e.getPlayer()).equals(AccessLevel.WRITE_ONLY)) {
 
 				}else{
 					e.setCancelled(true);

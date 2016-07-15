@@ -18,6 +18,11 @@ public enum AccessLevel {
 	READ_WRITE,
 
 	/**
+	 * When public has this permission, hoppers can add contents, but players have NO_ACCESS.
+	 */
+	WRITE_ONLY,
+
+	/**
 	 * Whoever has this permission can view contents of chest but not modify, break, or claim ownership of the chest.
 	 */
 	READ_ONLY,
