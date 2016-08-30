@@ -61,10 +61,6 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 
 			playerClicksOnProtectedInventory(e,player,container);
 		}
-
-
-
-
 	}
 
 	private void playerClicksOnShopChest(InventoryClickEvent e, Player player, LockedContainer container){

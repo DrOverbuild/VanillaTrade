@@ -51,7 +51,8 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 			}
 
 			if(args[0].equalsIgnoreCase("owner")){
-				player.sendMessage(ChatColor.RED + "Usage: /lock owner <player>");
+				player.sendMessage(ChatColor.GRAY + "Right click chest to get owner");
+				plugin.setState(player, VanillaTradeState.LOCK_SETUP_GET_OWNER);
 				return true;
 			}
 
@@ -66,20 +67,38 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 
 		if(args[0].equalsIgnoreCase("add")){
 			OfflinePlayer offlinePlayer = plugin.getServer().getOfflinePlayer(args[1]);
-			player.sendMessage(ChatColor.GRAY + "Right click chest to add player.");
+
+			if(offlinePlayer == null){
+				player.sendMessage(ChatColor.RED + "This user doesn't exist");
+				return true;
+			}
+
+			player.sendMessage(ChatColor.GRAY + "Right click chest to add player");
 			VanillaTradeState state = VanillaTradeState.LOCK_SETUP_ADD_PLAYER;
 			state.setPlayer(offlinePlayer);
 			plugin.setState(player,state);
 		}else if(args[0].equalsIgnoreCase("remove")){
 			OfflinePlayer offlinePlayer = plugin.getServer().getOfflinePlayer(args[1]);
-			player.sendMessage(ChatColor.GRAY + "Right click chest to remove player.");
+
+			if(offlinePlayer == null){
+				player.sendMessage(ChatColor.RED + "This user doesn't exist");
+				return true;
+			}
+
+			player.sendMessage(ChatColor.GRAY + "Right click chest to remove player");
 			VanillaTradeState state = VanillaTradeState.LOCK_SETUP_REMOVE_PLAYER;
 			state.setPlayer(offlinePlayer);
 			plugin.setState(player,state);
 		}else if(args[0].equalsIgnoreCase("owner")){
 			OfflinePlayer offlinePlayer = plugin.getServer().getOfflinePlayer(args[1]);
-			player.sendMessage(ChatColor.GRAY + "Right click chest to change owner.");
-			VanillaTradeState state = VanillaTradeState.LOCK_SETUP_CHANGE_OWNER;
+
+			if(offlinePlayer == null){
+				player.sendMessage(ChatColor.RED + "This user doesn't exist");
+				return true;
+			}
+
+			player.sendMessage(ChatColor.GRAY + "Right click chest to change owner");
+			VanillaTradeState state = VanillaTradeState.LOCK_SETUP_SET_OWNER;
 			state.setPlayer(offlinePlayer);
 			plugin.setState(player,state);
 		}else if(args[0].equalsIgnoreCase("chmod")){
@@ -110,7 +129,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 					VanillaTradeState state = VanillaTradeState.LOCK_SETUP_CHMOD_PUBLIC;
 					state.setPermission(AccessLevel.valueOf(args[2]));
 					plugin.setState(player,state);
-					player.sendMessage(ChatColor.GRAY + "Right click chest to change permissions of the chest.");
+					player.sendMessage(ChatColor.GRAY + "Right click chest to change permissions of the chest");
 				}
 			}else{
 				player.sendMessage("Usage: /lock chmod " + args[1] + " <NO_ACCESS|WRITE_ONLY|READ_ONLY|READ_WRITE|FULL_ACCESS>");

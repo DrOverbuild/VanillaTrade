@@ -1,4 +1,4 @@
-package com.tenny1028.vanillatrade;
+package com.tenny1028.vanillatrade.util.itemstack;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
