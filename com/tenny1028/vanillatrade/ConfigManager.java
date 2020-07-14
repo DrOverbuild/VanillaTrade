@@ -3,6 +3,7 @@ package com.tenny1028.vanillatrade;
 import com.tenny1028.vanillatrade.protection.AccessLevel;
 import com.tenny1028.vanillatrade.protection.LockedContainer;
 import com.tenny1028.vanillatrade.protection.ShopChest;
+import com.tenny1028.vanillatrade.util.itemstack.ItemStackManager;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.InvalidConfigurationException;

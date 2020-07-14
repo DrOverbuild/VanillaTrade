@@ -1,4 +1,4 @@
-package com.tenny1028.vanillatrade;
+package com.tenny1028.vanillatrade.util.itemstack;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -23,29 +23,13 @@ public class ItemStackManager {
 	public static ItemStack parsePayment(String str){
 		Material paymentType = null;
 
-		String typeStr = "";
-		short data = 0;
-
-		if(str.contains(":")){
-			String[] split = str.split(":");
-			typeStr = split[0];
-			try{
-				data = Short.parseShort(split[1]);
-			}catch (NumberFormatException e){
-				return null;
-			}
-		}else{
-			typeStr = str;
-			data = 0;
-		}
-
-		paymentType = Material.matchMaterial(typeStr.replace(" ","_"));
+		paymentType = Material.matchMaterial(str.replace(" ","_"));
 
 		if(paymentType == null){
 			return null;
 		}
 
-		return new ItemStack(paymentType,1,data);
+		return new ItemStack(paymentType,1);
 	}
 
 	public static String itemStackToHumanReadableFormat(ItemStack item, boolean ignoreNumber){
