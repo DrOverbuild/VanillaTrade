@@ -16,9 +16,8 @@ public class ItemStackManager {
 
 		Material material = Material.matchMaterial(config.getString("payment.type","GOLD_INGOT"));
 		int amount = config.getInt("payment.amount",1);
-		int data = config.getInt("payment.data", 0);
 
-		return new ItemStack(material,amount,(short)data);
+		return new ItemStack(material,amount);
 	}
 
 	public static ItemStack parsePayment(String str){
@@ -40,12 +39,7 @@ public class ItemStackManager {
 			data = 0;
 		}
 
-		try{
-			int id = Integer.parseInt(typeStr);
-			paymentType = Material.getMaterial(id);
-		}catch (NumberFormatException ex) {
-			paymentType = Material.matchMaterial(typeStr.replace(" ","_"));
-		}
+		paymentType = Material.matchMaterial(typeStr.replace(" ","_"));
 
 		if(paymentType == null){
 			return null;

@@ -1,8 +1,8 @@
 package com.tenny1028.vanillatrade;
 
-import com.tenny1028.vanillatrade.commands.LockCommand;
 import com.tenny1028.vanillatrade.commands.ShopCommand;
 import com.tenny1028.vanillatrade.commands.UnlockCommand;
+import com.tenny1028.vanillatrade.commands.LockCommand;
 import com.tenny1028.vanillatrade.events.ExtraEventsHandler;
 import com.tenny1028.vanillatrade.events.PlayerAsyncChatEventHandler;
 import com.tenny1028.vanillatrade.events.PlayerInteractEventHandler;
@@ -11,7 +11,9 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -66,11 +68,7 @@ public class VanillaTrade extends JavaPlugin{
 	}
 
 	public VanillaTradeState getState(Player p){
-		if(playerState.containsKey(p)){
-			return playerState.get(p);
-		}else{
-			return VanillaTradeState.NONE;
-		}
+		return playerState.getOrDefault(p, VanillaTradeState.NONE);
 	}
 
 	public void setState(Player p, VanillaTradeState state){
@@ -87,18 +85,26 @@ public class VanillaTrade extends JavaPlugin{
 		return shopConfigManager;
 	}
 
-	public Chest getSisterChest(Chest chest){
-		BlockFace[] faces = new BlockFace[]{BlockFace.NORTH,BlockFace.EAST,BlockFace.SOUTH,BlockFace.WEST};
-		for(BlockFace face:faces){
-			Block relative = chest.getBlock().getRelative(face);
-			if(relative!=null && relative.getType().equals(Material.CHEST)){
-				return (Chest)relative.getState();
+	public Chest getSisterChest(Chest thisChest){
+		InventoryHolder holder = thisChest.getInventory().getHolder();
+		if (holder instanceof DoubleChest) {
+			DoubleChest bigBoi = (DoubleChest) holder;
+			Chest leftChest = (Chest) bigBoi.getLeftSide();
+			Chest rightChest = (Chest) bigBoi.getRightSide();
+
+			if (thisChest.equals(leftChest)) {
+				return rightChest;
+			} else if (thisChest.equals(rightChest)) {
+				return leftChest;
 			}
+
 		}
+
 		return null;
 	}
 
 	public boolean isDoubleChest(Chest chest){
-		return getSisterChest(chest) != null;
+		InventoryHolder holder = chest.getInventory().getHolder();
+		return holder instanceof DoubleChest;
 	}
 }

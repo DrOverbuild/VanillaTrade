@@ -2,8 +2,8 @@ package com.tenny1028.vanillatrade.events;
 
 import com.tenny1028.vanillatrade.ItemStackManager;
 import com.tenny1028.vanillatrade.VanillaTrade;
-import com.tenny1028.vanillatrade.VanillaTradeState;
 import com.tenny1028.vanillatrade.protection.ShopChest;
+import com.tenny1028.vanillatrade.VanillaTradeState;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -23,7 +23,7 @@ public class PlayerAsyncChatEventHandler implements Listener {
 
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent e){
-		VanillaTradeState state = plugin.getState(e.getPlayer());
+		final VanillaTradeState state = plugin.getState(e.getPlayer());
 
 		if(state.equals(VanillaTradeState.NONE)){
 			return;
@@ -53,25 +53,27 @@ public class PlayerAsyncChatEventHandler implements Listener {
 			}
 
 			if(state.getCurrentBlock()!=null) {
-				ShopChest shop = plugin.getLockedContainerConfigManager().getShopChest(state.getCurrentBlock());
-				if(shop == null){
-					shop = new ShopChest(e.getPlayer(),state.getCurrentBlock(),payment);
-				}
-				shop.setCost(payment);
-				plugin.getLockedContainerConfigManager().saveShopChests(shop);
+				plugin.getServer().getScheduler().runTask(plugin, () -> {
+					ShopChest shop = plugin.getLockedContainerConfigManager().getShopChest(state.getCurrentBlock());
+					if(shop == null){
+						shop = new ShopChest(e.getPlayer(),state.getCurrentBlock(),payment);
+					}
+					shop.setCost(payment);
+					plugin.getLockedContainerConfigManager().saveShopChests(shop);
 
-				e.getPlayer().sendMessage("");
-				e.getPlayer().sendMessage(ChatColor.GRAY + "Payment type set to " + ChatColor.GOLD +
-						ItemStackManager.itemStackToHumanReadableFormat(payment));
-				e.getPlayer().sendMessage("");
-				e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
-				e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment amount.");
-				e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
+					e.getPlayer().sendMessage("");
+					e.getPlayer().sendMessage(ChatColor.GRAY + "Payment type set to " + ChatColor.GOLD +
+							ItemStackManager.itemStackToHumanReadableFormat(payment));
+					e.getPlayer().sendMessage("");
+					e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
+					e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment amount.");
+					e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
 
 
-				state = VanillaTradeState.SHOP_SETUP_CHOOSE_PAYMENT_AMOUNT;
-				state.setCurrentBlock(shop.getLocation());
-				plugin.setState(e.getPlayer(),state);
+					VanillaTradeState newState = VanillaTradeState.SHOP_SETUP_CHOOSE_PAYMENT_AMOUNT;
+					newState.setCurrentBlock(shop.getLocation());
+					plugin.setState(e.getPlayer(),newState);
+				});
 			}
 
 		}else if(state.equals(VanillaTradeState.SHOP_SETUP_CHOOSE_PAYMENT_AMOUNT)){

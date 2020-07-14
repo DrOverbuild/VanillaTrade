@@ -48,7 +48,7 @@ public class ConfigManager {
 			return null;
 		}
 		String ownerUUID = config.getString("owner", "");
-		String publicAccessLevel = config.getString("access-level.public",AccessLevel.NO_ACCESS.name());
+		String publicAccessLevel = config.getString("access-level.public", AccessLevel.NO_ACCESS.name());
 		String friendsAccessLevel = config.getString("access-level.friends",AccessLevel.READ_WRITE.name());
 		List<String> friends = config.getStringList("friends");
 		ItemStack payment = ItemStackManager.getPayment(config);
@@ -95,14 +95,19 @@ public class ConfigManager {
 
 	public void saveContainers(LockedContainer container){
 		saveContainer(container);
-		if(plugin.isDoubleChest(container.getChest())){
-			saveContainer(new LockedContainer(container.getOwner(),plugin.getSisterChest(container.getChest()).getLocation(),
-					container.getPublicAccessLevel(),container.getFriendsAccessLevel(),container.getFriends()));
-		}
+		plugin.getServer().getScheduler().runTask(plugin, () -> {
+			if(plugin.isDoubleChest(container.getChest())){
+				saveContainer(new LockedContainer(container.getOwner(),plugin.getSisterChest(container.getChest()).getLocation(),
+						container.getPublicAccessLevel(),container.getFriendsAccessLevel(),container.getFriends()));
+			}
+		});
 	}
 
 	public void unlockContainer(LockedContainer container){
-		new File(shopsDir, getConfigFileName(container.getLocation())).delete();
+		File theFileWereGonnaDelete = new File(shopsDir, getConfigFileName(container.getLocation()));
+		if (theFileWereGonnaDelete != null) {
+			theFileWereGonnaDelete.delete();
+		}
 	}
 
 	public ShopChest getShopChest(Location location){
@@ -140,8 +145,11 @@ public class ConfigManager {
 
 	public void saveShopChests(ShopChest shopChest){
 		saveShopChest(shopChest);
-		if(plugin.isDoubleChest(shopChest.getChest())){
-			saveShopChest(new ShopChest(shopChest.getOwner(),plugin.getSisterChest(shopChest.getChest()).getLocation(),shopChest.getCost()));
-		}
+		plugin.getServer().getScheduler().runTask(plugin, () -> {
+			if(plugin.isDoubleChest(shopChest.getChest())){
+				saveShopChest(new ShopChest(shopChest.getOwner(),plugin.getSisterChest(shopChest.getChest()).getLocation(),shopChest.getCost()));
+			}
+		});
+
 	}
 }

@@ -1,12 +1,11 @@
 package com.tenny1028.vanillatrade.events;
 
 import com.tenny1028.vanillatrade.VanillaTrade;
-import com.tenny1028.vanillatrade.VanillaTradeState;
-import com.tenny1028.vanillatrade.protection.AccessLevel;
 import com.tenny1028.vanillatrade.protection.LockedContainer;
 import com.tenny1028.vanillatrade.protection.ShopChest;
+import com.tenny1028.vanillatrade.VanillaTradeState;
+import com.tenny1028.vanillatrade.protection.AccessLevel;
 import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -42,7 +41,7 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 
 		Player player = (Player)e.getWhoClicked();
 
-		if(e.getInventory().getName().startsWith(ChatColor.BOLD + "Trade with")||e.getInventory().getName().equals(confirmationInvName)){
+		if(e.getView().getTitle().startsWith(ChatColor.BOLD + "Trade with")||e.getView().getTitle().equals(confirmationInvName)){
 			if(plugin.getState(player).getCurrentBlock() != null) {
 				LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(plugin.getState(player).getCurrentBlock());
 				playerClicksOnShopChest(e, player, container);
@@ -50,7 +49,7 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 			}
 		}
 
-		if(e.getInventory().getHolder() instanceof Chest || e.getInventory().getName().equals(confirmationInvName)){
+		if(e.getInventory().getHolder() instanceof Chest || e.getView().getTitle().equals(confirmationInvName)){
 			Chest chest = (Chest)e.getInventory().getHolder();
 
 			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(chest.getLocation());
@@ -75,7 +74,7 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 		}
 
 		if(plugin.getState(player).equals(VanillaTradeState.BROWSING_SHOP)){
-			if(!e.getClickedInventory().getName().startsWith(ChatColor.BOLD + "Trade with")){
+			if(!e.getView().getTitle().startsWith(ChatColor.BOLD + "Trade with")){
 				return;
 			}
 
@@ -108,7 +107,7 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 
 			Inventory inv = plugin.getServer().createInventory(player,27,confirmationInvName);
 
-			ItemStack greenWool = new ItemStack(Material.WOOL,1,DyeColor.LIME.getData());
+			ItemStack greenWool = new ItemStack(Material.LIME_WOOL,1);
 			ItemMeta greenWoolMeta = greenWool.getItemMeta();
 			greenWoolMeta.setDisplayName(ChatColor.GREEN + "YES");
 			greenWool.setItemMeta(greenWoolMeta);
@@ -122,7 +121,7 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 			inv.setItem(19,greenWool);
 			inv.setItem(20,greenWool);
 
-			ItemStack redWool = new ItemStack(Material.WOOL,1,DyeColor.RED.getData());
+			ItemStack redWool = new ItemStack(Material.RED_WOOL,1);
 			ItemMeta redWoolMeta = redWool.getItemMeta();
 			redWoolMeta.setDisplayName(ChatColor.RED + "NO");
 			redWool.setItemMeta(redWoolMeta);

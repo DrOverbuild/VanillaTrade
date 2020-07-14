@@ -1,10 +1,10 @@
 package com.tenny1028.vanillatrade.events;
 
 import com.tenny1028.vanillatrade.VanillaTrade;
-import com.tenny1028.vanillatrade.VanillaTradeState;
 import com.tenny1028.vanillatrade.protection.AccessLevel;
 import com.tenny1028.vanillatrade.protection.LockedContainer;
 import com.tenny1028.vanillatrade.protection.ShopChest;
+import com.tenny1028.vanillatrade.VanillaTradeState;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

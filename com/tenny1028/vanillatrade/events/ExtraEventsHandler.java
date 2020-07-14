@@ -1,16 +1,20 @@
 package com.tenny1028.vanillatrade.events;
 
+import com.tenny1028.vanillatrade.VanillaTrade;
 import com.tenny1028.vanillatrade.protection.AccessLevel;
 import com.tenny1028.vanillatrade.protection.LockedContainer;
 import com.tenny1028.vanillatrade.protection.ShopChest;
 import com.tenny1028.vanillatrade.VanillaTradeState;
-import com.tenny1028.vanillatrade.VanillaTrade;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -45,23 +49,49 @@ public class ExtraEventsHandler implements Listener {
 	@EventHandler
 	public void onPlaceBlock(BlockPlaceEvent e){
 		if(e.getBlock().getType().equals(Material.CHEST)) {
-			Chest chest = plugin.getSisterChest((Chest)e.getBlock().getState());
-			if (chest != null) {
-				LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(chest.getLocation());
-				if (container != null) {
-					if (AccessLevel.hasPermission(container.getAccessLevelOf(e.getPlayer()),AccessLevel.FULL_ACCESS)) {
-						if(container instanceof ShopChest) {
-							plugin.getLockedContainerConfigManager().saveShopChest(new ShopChest(container.getOwner(), e.getBlock().getLocation(), ((ShopChest)container).getCost()));
-						}else{
-							plugin.getLockedContainerConfigManager().saveContainer(new LockedContainer(container.getOwner(),
-									e.getBlock().getLocation(),container.getPublicAccessLevel(),container.getFriendsAccessLevel(),container.getFriends()));
+			final Block placedBlock = e.getBlockPlaced();
+
+			// need to check if the chest will be a double chest but it doesn't know until next tick
+			plugin.getServer().getScheduler().runTask(plugin, () -> {
+				Chest placed = (Chest) placedBlock.getState();
+				if (plugin.isDoubleChest(placed)) {
+					// it is a double chest
+
+					// find the sister chest to check for ownership
+					Chest otherChest = plugin.getSisterChest(placed);
+					LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(otherChest.getLocation());
+
+					if (container != null) {
+						// if container is not null, this chest is locked
+						if (AccessLevel.hasPermission(container.getAccessLevelOf(e.getPlayer()),AccessLevel.FULL_ACCESS)) {
+							// add placed chest to our databases and copy data from sister chest
+
+							if(container instanceof ShopChest) {
+								plugin.getLockedContainerConfigManager().saveShopChest(
+										new ShopChest(container.getOwner(),
+												e.getBlock().getLocation(),
+												((ShopChest)container).getCost())
+								);
+							}else{
+								plugin.getLockedContainerConfigManager().saveContainer(
+										new LockedContainer(container.getOwner(),
+												e.getBlock().getLocation(),
+												container.getPublicAccessLevel(),
+												container.getFriendsAccessLevel(),
+												container.getFriends())
+								);
+							}
+						} else {
+							// can't cancel the event but we can break it naturally
+							placedBlock.breakNaturally();
+							e.getPlayer().sendMessage(ChatColor.RED + "You do not own this chest.");
 						}
-					} else {
-						e.setCancelled(true);
-						e.getPlayer().sendMessage(ChatColor.RED + "You do not own this chest.");
 					}
 				}
-			}
+			});
+
+
+
 		}
 	}
 
