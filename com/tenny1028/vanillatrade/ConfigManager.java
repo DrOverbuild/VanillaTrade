@@ -6,6 +6,7 @@ import com.tenny1028.vanillatrade.protection.ShopChest;
 import com.tenny1028.vanillatrade.util.itemstack.ItemStackManager;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Chest;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -97,9 +98,17 @@ public class ConfigManager {
 	public void saveContainers(LockedContainer container){
 		saveContainer(container);
 		plugin.getServer().getScheduler().runTask(plugin, () -> {
-			if(plugin.isDoubleChest(container.getChest())){
-				saveContainer(new LockedContainer(container.getOwner(),plugin.getSisterChest(container.getChest()).getLocation(),
-						container.getPublicAccessLevel(),container.getFriendsAccessLevel(),container.getFriends()));
+			if(plugin.isDoubleChest(container.getContainerBlock())){
+				Chest chest = (Chest) container.getContainerBlock();
+				saveContainer(
+						new LockedContainer(
+								container.getOwner(),
+								plugin.getSisterChest(chest).getLocation(),
+								container.getPublicAccessLevel(),
+								container.getFriendsAccessLevel(),
+								container.getFriends()
+						)
+				);
 			}
 		});
 	}
@@ -147,8 +156,15 @@ public class ConfigManager {
 	public void saveShopChests(ShopChest shopChest){
 		saveShopChest(shopChest);
 		plugin.getServer().getScheduler().runTask(plugin, () -> {
-			if(plugin.isDoubleChest(shopChest.getChest())){
-				saveShopChest(new ShopChest(shopChest.getOwner(),plugin.getSisterChest(shopChest.getChest()).getLocation(),shopChest.getCost()));
+			if(plugin.isDoubleChest(shopChest.getContainerBlock())){
+				Chest chest = (Chest) shopChest.getContainerBlock();
+				saveShopChest(
+						new ShopChest(
+								shopChest.getOwner(),
+								plugin.getSisterChest(chest).getLocation(),
+								shopChest.getCost()
+						)
+				);
 			}
 		});
 

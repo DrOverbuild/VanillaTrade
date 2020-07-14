@@ -3,6 +3,7 @@ package com.tenny1028.vanillatrade.protection;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Chest;
+import org.bukkit.block.Container;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
@@ -50,8 +51,8 @@ public class LockedContainer {
 		this.friends = friends;
 	}
 
-	public Chest getChest(){
-		return (Chest)getLocation().getBlock().getState();
+	public Container getContainerBlock(){
+		return (Container)getLocation().getBlock().getState();
 	}
 
 	public OfflinePlayer getOwner() {

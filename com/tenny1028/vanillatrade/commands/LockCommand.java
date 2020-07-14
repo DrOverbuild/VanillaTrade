@@ -35,7 +35,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 
 		if(args.length == 0){
 			plugin.setState(player, VanillaTradeState.LOCK_SETUP_CHOOSE_CHEST);
-			player.sendMessage(ChatColor.GRAY + "Right click a chest to lock.");
+			player.sendMessage(ChatColor.GRAY + "Right click a container to lock.");
 			return true;
 		}
 
@@ -51,7 +51,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 			}
 
 			if(args[0].equalsIgnoreCase("owner")){
-				player.sendMessage(ChatColor.GRAY + "Right click chest to get owner");
+				player.sendMessage(ChatColor.GRAY + "Right click container to get owner");
 				plugin.setState(player, VanillaTradeState.LOCK_SETUP_GET_OWNER);
 				return true;
 			}
@@ -73,7 +73,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 				return true;
 			}
 
-			player.sendMessage(ChatColor.GRAY + "Right click chest to add player");
+			player.sendMessage(ChatColor.GRAY + "Right click container to add player");
 			VanillaTradeState state = VanillaTradeState.LOCK_SETUP_ADD_PLAYER;
 			state.setPlayer(offlinePlayer);
 			plugin.setState(player,state);
@@ -85,7 +85,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 				return true;
 			}
 
-			player.sendMessage(ChatColor.GRAY + "Right click chest to remove player");
+			player.sendMessage(ChatColor.GRAY + "Right click container to remove player");
 			VanillaTradeState state = VanillaTradeState.LOCK_SETUP_REMOVE_PLAYER;
 			state.setPlayer(offlinePlayer);
 			plugin.setState(player,state);
@@ -97,7 +97,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 				return true;
 			}
 
-			player.sendMessage(ChatColor.GRAY + "Right click chest to change owner");
+			player.sendMessage(ChatColor.GRAY + "Right click container to change owner");
 			VanillaTradeState state = VanillaTradeState.LOCK_SETUP_SET_OWNER;
 			state.setPlayer(offlinePlayer);
 			plugin.setState(player,state);
@@ -118,7 +118,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 					VanillaTradeState state = VanillaTradeState.LOCK_SETUP_CHMOD_FRIENDS;
 					state.setPermission(AccessLevel.valueOf(args[2]));
 					plugin.setState(player,state);
-					player.sendMessage(ChatColor.GRAY + "Right click chest to change permissions of the chest.");
+					player.sendMessage(ChatColor.GRAY + "Right click container to change permissions of the container.");
 				}else{
 					try{
 						AccessLevel.valueOf(args[2].toUpperCase());
@@ -129,7 +129,7 @@ public class LockCommand implements CommandExecutor, TabCompleter {
 					VanillaTradeState state = VanillaTradeState.LOCK_SETUP_CHMOD_PUBLIC;
 					state.setPermission(AccessLevel.valueOf(args[2]));
 					plugin.setState(player,state);
-					player.sendMessage(ChatColor.GRAY + "Right click chest to change permissions of the chest");
+					player.sendMessage(ChatColor.GRAY + "Right click container to change permissions of the container");
 				}
 			}else{
 				player.sendMessage("Usage: /lock chmod " + args[1] + " <NO_ACCESS|WRITE_ONLY|READ_ONLY|READ_WRITE|FULL_ACCESS>");

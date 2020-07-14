@@ -8,10 +8,7 @@ import com.tenny1028.vanillatrade.events.PlayerAsyncChatEventHandler;
 import com.tenny1028.vanillatrade.events.PlayerInteractEventHandler;
 import com.tenny1028.vanillatrade.events.PlayerInventoryInteractEventHandler;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
-import org.bukkit.block.DoubleChest;
+import org.bukkit.block.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -103,8 +100,12 @@ public class VanillaTrade extends JavaPlugin{
 		return null;
 	}
 
-	public boolean isDoubleChest(Chest chest){
-		InventoryHolder holder = chest.getInventory().getHolder();
+	public boolean isDoubleChest(Container container){
+		if (!(container instanceof Chest)) {
+			return false;
+		}
+
+		InventoryHolder holder = container.getInventory().getHolder();
 		return holder instanceof DoubleChest;
 	}
 }

@@ -27,7 +27,7 @@ public class UnlockCommand implements CommandExecutor {
 
 		Player player = (Player)commandSender;
 		plugin.setState(player, VanillaTradeState.LOCK_SETUP_UNLOCK);
-		player.sendMessage(ChatColor.GRAY + "Right click a chest to unlock.");
+		player.sendMessage(ChatColor.GRAY + "Right click a container to unlock.");
 		return true;
 	}
 }

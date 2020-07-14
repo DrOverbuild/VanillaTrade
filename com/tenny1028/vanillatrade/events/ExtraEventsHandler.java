@@ -8,13 +8,11 @@ import com.tenny1028.vanillatrade.VanillaTradeState;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
-import org.bukkit.block.DoubleChest;
+import org.bukkit.block.Container;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -30,12 +28,12 @@ public class ExtraEventsHandler implements Listener {
 
 	@EventHandler
 	public void onPlayerBreakBlock(BlockBreakEvent e){
-		if(e.getBlock().getType().equals(Material.CHEST)){
+		if(e.getBlock().getState() instanceof Container){
 			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(e.getBlock().getLocation());
 			if(container!=null){
 				if(AccessLevel.hasPermission(container.getAccessLevelOf(e.getPlayer()),AccessLevel.FULL_ACCESS)){
 					plugin.getLockedContainerConfigManager().unlockContainer(container);
-					if(!plugin.isDoubleChest(container.getChest())) {
+					if(!plugin.isDoubleChest(container.getContainerBlock())) {
 						e.getPlayer().sendMessage(ChatColor.GRAY + "This chest has been unlocked.");
 					}
 				}else{
@@ -48,6 +46,8 @@ public class ExtraEventsHandler implements Listener {
 
 	@EventHandler
 	public void onPlaceBlock(BlockPlaceEvent e){
+		// handle whenever a player tries to expand a single chest's inventory by placing an unlocked chest beside it
+
 		if(e.getBlock().getType().equals(Material.CHEST)) {
 			final Block placedBlock = e.getBlockPlaced();
 

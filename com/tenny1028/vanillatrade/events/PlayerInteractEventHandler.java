@@ -7,6 +7,9 @@ import com.tenny1028.vanillatrade.protection.ShopChest;
 import com.tenny1028.vanillatrade.VanillaTradeState;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,7 +39,8 @@ public class PlayerInteractEventHandler implements Listener {
 			return;
 		}
 
-		if (!e.getClickedBlock().getType().equals(Material.CHEST)) {
+		if (!(e.getClickedBlock().getState() instanceof Container)) {
+			// if somehow a block is locked but doesn't contain items, remove its locked state. Something went wrong.
 			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(e.getClickedBlock().getLocation());
 			if (container != null) {
 				plugin.getLockedContainerConfigManager().unlockContainer(container);
@@ -51,11 +56,15 @@ public class PlayerInteractEventHandler implements Listener {
 		LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(e.getClickedBlock().getLocation());
 		if (container == null) {
 			if (plugin.getState(e.getPlayer()).equals(VanillaTradeState.SHOP_SETUP_CHOOSE_CHEST) || plugin.getState(e.getPlayer()).equals(VanillaTradeState.SHOP_SETUP_CHOOSE_PAYMENT_TYPE)) {
-				setupNewShop(e);
+				if (isIllegalShopBlock(e.getClickedBlock())) {
+					e.getPlayer().sendMessage(ChatColor.RED + "You must choose a barrel, chest, double chest, or a shulker box");
+				} else {
+					setupNewShop(e);
+				}
 			} else if (plugin.getState(e.getPlayer()).equals(VanillaTradeState.LOCK_SETUP_CHOOSE_CHEST)) {
 				lockContainer(e);
 			} else if (plugin.getState(e.getPlayer()).name().startsWith("LOCK_SETUP_")) {
-				e.getPlayer().sendMessage(ChatColor.RED + "This chest is not locked. Type /lock to lock it.");
+				e.getPlayer().sendMessage(ChatColor.RED + "This container is not locked. Type /lock to lock it.");
 				plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 			}
 		} else {
@@ -115,7 +124,7 @@ public class PlayerInteractEventHandler implements Listener {
 						lockSetupUnlock(e, container);
 					} else if (plugin.getState(e.getPlayer()).equals(VanillaTradeState.LOCK_SETUP_CHOOSE_CHEST)) {
 						e.setCancelled(true);
-						e.getPlayer().sendMessage(ChatColor.RED + "This chest is already locked.");
+						e.getPlayer().sendMessage(ChatColor.RED + "This container is already locked.");
 						plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 					} else if (plugin.getState(e.getPlayer()).equals(VanillaTradeState.LOCK_SETUP_SET_OWNER)) {
 						lockSetupChangeOwner(e, container);
@@ -127,23 +136,23 @@ public class PlayerInteractEventHandler implements Listener {
 					e.setCancelled(true);
 
 					if (!plugin.getState(e.getPlayer()).equals(VanillaTradeState.NONE)) {
-						e.getPlayer().sendMessage(ChatColor.RED + "You do not own this chest.");
+						e.getPlayer().sendMessage(ChatColor.RED + "You do not own this container.");
 						plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 						return;
 					}
 
-					e.getPlayer().sendMessage(ChatColor.RED + "You do not have permission to open " + container.getOwner().getName() + "'s chest.");
+					e.getPlayer().sendMessage(ChatColor.RED + "You do not have permission to open " + container.getOwner().getName() + "'s container.");
 				}
 			}
 		}
 	}
 
 	private void openInventory(ShopChest shop, Player p) {
-		Inventory chestInv = shop.getChest().getInventory();
-		Inventory inv = plugin.getServer().createInventory(p, chestInv.getSize(), ChatColor.BOLD + "Trade with " + shop.getOwner().getName());
+		Inventory containerInv = shop.getContainerBlock().getInventory();
+		Inventory inv = plugin.getServer().createInventory(p, containerInv.getSize(), ChatColor.BOLD + "Trade with " + shop.getOwner().getName());
 
-		for (int i = 0; i < chestInv.getContents().length; i++) {
-			ItemStack item = chestInv.getContents()[i];
+		for (int i = 0; i < containerInv.getContents().length; i++) {
+			ItemStack item = containerInv.getContents()[i];
 			if (item != null) {
 				if (!item.getType().equals(shop.getCost().getType())) {
 					ItemStack copy = new ItemStack(item);
@@ -173,8 +182,8 @@ public class PlayerInteractEventHandler implements Listener {
 	private void setupNewShop(PlayerInteractEvent e) {
 		e.setCancelled(true);
 		e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
-		e.getPlayer().sendMessage(ChatColor.GRAY + "Setting up a new Shop chest.");
-		e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment type or choose another chest.");
+		e.getPlayer().sendMessage(ChatColor.GRAY + "Setting up a new Shop ontainer.");
+		e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment type or choose another container.");
 		e.getPlayer().sendMessage(ChatColor.GRAY + "Examples: " + ChatColor.GOLD + "diamond" + ChatColor.GRAY + " or " + ChatColor.GOLD + "gold_nugget");
 		e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
 		VanillaTradeState state = VanillaTradeState.SHOP_SETUP_CHOOSE_PAYMENT_TYPE;
@@ -185,10 +194,10 @@ public class PlayerInteractEventHandler implements Listener {
 	private void setupExistingShop(PlayerInteractEvent e, ShopChest shop) {
 		e.setCancelled(true);
 		e.getPlayer().sendMessage(ChatColor.GOLD + "++++++++++++ SHOP SETUP ++++++++++++");
-		e.getPlayer().sendMessage(ChatColor.GRAY + "Editing an existing Shop chest.");
-		e.getPlayer().sendMessage(ChatColor.GRAY + "Cost of items in chest: " + ChatColor.GOLD + shop.getCost().getAmount() + " " +
+		e.getPlayer().sendMessage(ChatColor.GRAY + "Editing an existing Shop container.");
+		e.getPlayer().sendMessage(ChatColor.GRAY + "Cost of items in container: " + ChatColor.GOLD + shop.getCost().getAmount() + " " +
 				shop.getCost().getType().name().toLowerCase().replace("_", " ") + ((shop.getCost().getAmount() > 1 || shop.getCost().getAmount() == 0) ? "s" : ""));
-		e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment type or choose another chest.");
+		e.getPlayer().sendMessage(ChatColor.GRAY + "Enter desired payment type or choose another container.");
 		e.getPlayer().sendMessage(ChatColor.GRAY + "Examples: " + ChatColor.GOLD + "diamond" + ChatColor.GRAY + " or " + ChatColor.GOLD + "gold_nugget");
 		e.getPlayer().sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++++");
 		VanillaTradeState state = VanillaTradeState.SHOP_SETUP_CHOOSE_PAYMENT_TYPE;
@@ -200,8 +209,8 @@ public class PlayerInteractEventHandler implements Listener {
 		e.setCancelled(true);
 		LockedContainer container = new LockedContainer(e.getPlayer(), e.getClickedBlock().getLocation());
 		plugin.getLockedContainerConfigManager().saveContainers(container);
-		e.getPlayer().sendMessage(ChatColor.GOLD + "Chest locked! " + ChatColor.GRAY + "To give permission to" +
-				" players to use this chest, type " + ChatColor.GOLD + "/lock add <player>" + ChatColor.GRAY + ".");
+		e.getPlayer().sendMessage(ChatColor.GOLD + "Container locked! " + ChatColor.GRAY + "To give permission to" +
+				" players to use this container, type " + ChatColor.GOLD + "/lock add <player>" + ChatColor.GRAY + ".");
 		plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 	}
 
@@ -212,7 +221,7 @@ public class PlayerInteractEventHandler implements Listener {
 			container.addFriend(state.getPlayer());
 			plugin.getLockedContainerConfigManager().saveContainers(container);
 		}
-		e.getPlayer().sendMessage(ChatColor.GRAY + "Player " + ChatColor.GOLD + state.getPlayer().getName() + ChatColor.GRAY + " has been added to this chest.");
+		e.getPlayer().sendMessage(ChatColor.GRAY + "Player " + ChatColor.GOLD + state.getPlayer().getName() + ChatColor.GRAY + " has been added to this container.");
 		plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 	}
 
@@ -221,13 +230,13 @@ public class PlayerInteractEventHandler implements Listener {
 		VanillaTradeState state = plugin.getState(e.getPlayer());
 		container.setOwner(state.getPlayer());
 		plugin.getLockedContainerConfigManager().saveContainers(container);
-		e.getPlayer().sendMessage(ChatColor.GRAY + "Player " + ChatColor.GOLD + state.getPlayer().getName() + ChatColor.GRAY + " is now the owner of this chest.");
+		e.getPlayer().sendMessage(ChatColor.GRAY + "Player " + ChatColor.GOLD + state.getPlayer().getName() + ChatColor.GRAY + " is now the owner of this container.");
 		plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 	}
 
 	private void lockSetupGetOwner(PlayerInteractEvent e, LockedContainer container){
 		e.setCancelled(true);
-		e.getPlayer().sendMessage(ChatColor.GRAY + "The owner of this chest is " + ChatColor.GOLD + container.getOwner().getName());
+		e.getPlayer().sendMessage(ChatColor.GRAY + "The owner of this container is " + ChatColor.GOLD + container.getOwner().getName());
 		plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 	}
 
@@ -236,7 +245,7 @@ public class PlayerInteractEventHandler implements Listener {
 		VanillaTradeState state = plugin.getState(e.getPlayer());
 		container.setPublicAccessLevel(state.getPermission());
 		plugin.getLockedContainerConfigManager().saveContainers(container);
-		e.getPlayer().sendMessage(ChatColor.GRAY + "Public access level for this chest has been set to " + ChatColor.GOLD + state.getPermission().name() + ChatColor.GRAY + ".");
+		e.getPlayer().sendMessage(ChatColor.GRAY + "Public access level for this container has been set to " + ChatColor.GOLD + state.getPermission().name() + ChatColor.GRAY + ".");
 		plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 	}
 
@@ -245,7 +254,7 @@ public class PlayerInteractEventHandler implements Listener {
 		VanillaTradeState state = plugin.getState(e.getPlayer());
 		container.setFriendsAccessLevel(state.getPermission());
 		plugin.getLockedContainerConfigManager().saveContainers(container);
-		e.getPlayer().sendMessage(ChatColor.GRAY + "Friend access level for this chest has been set to " + ChatColor.GOLD + state.getPermission().name() + ChatColor.GRAY + ".");
+		e.getPlayer().sendMessage(ChatColor.GRAY + "Friend access level for this container has been set to " + ChatColor.GOLD + state.getPermission().name() + ChatColor.GRAY + ".");
 		plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 	}
 
@@ -255,9 +264,9 @@ public class PlayerInteractEventHandler implements Listener {
 		if (container.playerIsFriend(state.getPlayer())) {
 			container.removeFriend(state.getPlayer());
 			plugin.getLockedContainerConfigManager().saveContainers(container);
-			e.getPlayer().sendMessage(ChatColor.GRAY + "Player " + state.getPlayer().getName() + " has been removed to this chest.");
+			e.getPlayer().sendMessage(ChatColor.GRAY + "Player " + state.getPlayer().getName() + " has been removed to this container.");
 		} else {
-			e.getPlayer().sendMessage(ChatColor.RED + "Player " + state.getPlayer().getName() + " has not been added to this chest");
+			e.getPlayer().sendMessage(ChatColor.RED + "Player " + state.getPlayer().getName() + " has not been added to this container");
 		}
 		plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
 	}
@@ -265,11 +274,20 @@ public class PlayerInteractEventHandler implements Listener {
 	private void lockSetupUnlock(PlayerInteractEvent e, LockedContainer container) {
 		e.setCancelled(true);
 		plugin.getLockedContainerConfigManager().unlockContainer(container);
-		if (plugin.isDoubleChest(container.getChest())) {
+
+		// unlock other side if container is a double chest
+		if (plugin.isDoubleChest(container.getContainerBlock())) {
+			Chest chest = (Chest)container.getContainerBlock();
 			plugin.getLockedContainerConfigManager().unlockContainer(plugin.getLockedContainerConfigManager().getLockedContainer(
-					plugin.getSisterChest(container.getChest()).getLocation()));
+					plugin.getSisterChest(chest).getLocation()));
 		}
-		e.getPlayer().sendMessage(ChatColor.GRAY + "This chest has been unlocked.");
+
+		e.getPlayer().sendMessage(ChatColor.GRAY + "This container has been unlocked.");
 		plugin.setState(e.getPlayer(), VanillaTradeState.NONE);
+	}
+
+	private boolean isIllegalShopBlock(Block block) {
+		List<Material> legalShopBlocks = Arrays.asList(Material.BARREL, Material.CHEST, Material.SHULKER_BOX);
+		return !legalShopBlocks.contains(block.getType()) && !block.getType().name().contains("SHULKER_BOX");
 	}
 }

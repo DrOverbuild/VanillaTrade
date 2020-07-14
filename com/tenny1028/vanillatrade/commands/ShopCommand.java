@@ -26,7 +26,7 @@ public class ShopCommand implements CommandExecutor {
 			sender.sendMessage(ChatColor.GOLD + "+++++++++++ SHOP SETUP +++++++++++");
 			sender.sendMessage(ChatColor.GRAY + "You are now entering shop setup mode.");
 			sender.sendMessage(ChatColor.GRAY + "Type " + ChatColor.GOLD + "CANCEL" + ChatColor.GRAY + " at any time to stop.");
-			sender.sendMessage(ChatColor.GRAY + "Right click a chest to begin shop setup.");
+			sender.sendMessage(ChatColor.GRAY + "Right click a chest, barrel, or shulker box to begin shop setup.");
 			sender.sendMessage(ChatColor.GOLD + "+++++++++++++++++++++++++++++++++");
 			sender.sendMessage("");
 			plugin.setState((Player)sender, VanillaTradeState.SHOP_SETUP_CHOOSE_CHEST);

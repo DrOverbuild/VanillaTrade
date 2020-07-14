@@ -8,12 +8,14 @@ import com.tenny1028.vanillatrade.protection.AccessLevel;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -49,10 +51,10 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 			}
 		}
 
-		if(e.getInventory().getHolder() instanceof Chest || e.getView().getTitle().equals(confirmationInvName)){
-			Chest chest = (Chest)e.getInventory().getHolder();
+		if(e.getInventory().getHolder() instanceof BlockInventoryHolder || e.getView().getTitle().equals(confirmationInvName)){
+			Container containerBlock = (Container) e.getInventory().getHolder();
 
-			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(chest.getLocation());
+			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(containerBlock.getLocation());
 
 			if(container == null){
 				return;
@@ -74,7 +76,7 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 				return;
 			}
 
-			if(e.getRawSlot() > container.getChest().getInventory().getSize()) {
+			if(e.getRawSlot() > container.getContainerBlock().getInventory().getSize()) {
 				return;
 			}
 
@@ -157,8 +159,8 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 						}
 						itemBeingPurchased.setItemMeta(currentItemMeta);
 						player.getInventory().addItem(itemBeingPurchased);
-						currentShop.getChest().getInventory().setItem(plugin.getState(player).getItemSlot(),null);
-						currentShop.getChest().getInventory().addItem(currentShop.getCost());
+						currentShop.getContainerBlock().getInventory().setItem(plugin.getState(player).getItemSlot(),null);
+						currentShop.getContainerBlock().getInventory().addItem(currentShop.getCost());
 					}
 				}
 
@@ -185,10 +187,10 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 
 	@EventHandler
 	public void onInventoryMove(InventoryMoveItemEvent e){
-		if(e.getSource().getHolder() instanceof Chest && !(e.getDestination().getHolder() instanceof Player)){
-			Chest chest = (Chest)e.getSource().getHolder();
+		if(e.getSource().getHolder() instanceof Container && !(e.getDestination().getHolder() instanceof Player)){
+			Container containerBlock = (Container)e.getSource().getHolder();
 
-			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(chest.getLocation());
+			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(containerBlock.getLocation());
 
 			if(container != null){
 				if(!AccessLevel.hasPermission(container.getPublicAccessLevel(),AccessLevel.READ_WRITE)){
@@ -197,10 +199,10 @@ public class PlayerInventoryInteractEventHandler implements Listener {
 			}
 		}
 
-		if(e.getDestination().getHolder() instanceof Chest && !(e.getSource().getHolder() instanceof Player)){
-			Chest chest = (Chest)e.getDestination().getHolder();
+		if(e.getDestination().getHolder() instanceof Container && !(e.getSource().getHolder() instanceof Player)){
+			Container containerBlock = (Container) e.getDestination().getHolder();
 
-			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(chest.getLocation());
+			LockedContainer container = plugin.getLockedContainerConfigManager().getLockedContainer(containerBlock.getLocation());
 
 			if(container != null){
 				if(!AccessLevel.hasPermission(container.getPublicAccessLevel(),AccessLevel.WRITE_ONLY)){
